@@ -22,7 +22,7 @@ const SignInScreen = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigation = useNavigation();
-    
+
     return (
       <View style={{ padding: 20, justifyContent: "center", alignItems: "center", flex: 1 }}>
         <Text style={{ fontSize: 30 }}>Nus Free Things</Text>
