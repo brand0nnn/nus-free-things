@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity} from "react-native";
+/*import { StyleSheet, Text, View, TouchableOpacity} from "react-native";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { app } from "../firebaseConfig.js";
 
@@ -51,3 +51,4 @@ const styles = StyleSheet.create({
         backgroundColor:"#e6e6e6"
     },
 });
+*/
