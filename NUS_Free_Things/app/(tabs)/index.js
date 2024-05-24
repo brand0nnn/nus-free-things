@@ -1,57 +1,81 @@
-import { Image, StyleSheet, Platform, View, Text, Button, TextInput } from 'react-native';
+import { Image, StyleSheet, Platform, View, Text, Button, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import React, {useState} from 'react';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Stack } from 'expo-router/stack';
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import IonIcon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from 'expo-router';
+
+const Stack = createStackNavigator();
 
 
+const Chatroom = () => {
+  return (
+      <View style={{justifyContent: "center", alignItems: "center"}}>
+          <Text>Chatroom</Text>
+      </View>
+  );
+}
 
+function InputWithLabel({placeholder, value, onChangeText, onSubmitEditing }) {
+  return (
+    <View style={{ padding: 16 }}>
+      <TextInput
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        onSubmitEditing={onSubmitEditing}
+        style={{ padding: 8, fontSize: 18, backgroundColor: "#DBD8D7" }}
+      />
+    </View>
+  );
+}
+
+const Heading = () => {
+  const [search, setSearch] = useState("");
+  const navigation = useNavigation();
+
+  return (
+    <View style={{flexDirection: "row", padding: 25}}>
+      <View style={{flex: 1}}>
+        <InputWithLabel placeholder="Search" value={search} onChangeText={setSearch}/>
+      </View>
+      <TouchableOpacity onPress={() => navigation.navigate("Chats")}>
+        <IonIcon name="chatbubble-outline" style={{fontSize: 30, paddingLeft: 10, paddingTop: 20}}></IonIcon>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+
+const Body = () => {
+  const navigation = useNavigation();
+  return (
+    <View style={{alignItems: "center"}}>
+      <Button title="LogOut" onPress={() => navigation.navigate("SignIn")}/>
+    </View>
+  );
+};
+
+const Listing = () => {
+  return (  
+    <ScrollView>
+      <View>
+        <Heading />
+        <Body/>
+      </View>
+    </ScrollView>
+  );
+};
 
 export default function HomeScreen() {
-  return (  
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Hello!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+      <Stack.Navigator>
+        <Stack.Screen name="Listing" component={Listing} options={{ headerShown: false }}/>
+        <Stack.Screen name="Chats" component={Chatroom}/>
+      </Stack.Navigator>
   );
 }
 

@@ -1,39 +1,36 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import Explore from './explore.js';
+import Index from './index.js';
+
+const Tab = createBottomTabNavigator();
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-      <Tabs
+      <Tab.Navigator
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           headerShown: false,
         }}>
-        <Tabs.Screen
-          name="SignIn"
-          options={{
-            title: 'Sign In',
-            tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name={focused ? 'log-in' : 'log-in-outline'} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
+        <Tab.Screen
           name="index"
+          component={Index}
           options={{
-            title: 'Home',
+            title: 'Listings',
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+              <TabBarIcon name={focused ? 'search' : 'search-outline'} color={color} />
             ),
           }}
         />
-        <Tabs.Screen
+        <Tab.Screen
           name="explore"
+          component={Explore}
           options={{
             title: 'Explore',
             tabBarIcon: ({ color, focused }) => (
@@ -41,6 +38,6 @@ export default function TabLayout() {
             ),
           }}
         />
-      </Tabs>
+      </Tab.Navigator>
   );
 }

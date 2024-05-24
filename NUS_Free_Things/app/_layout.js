@@ -5,10 +5,15 @@ import { useEffect, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Stack } from 'expo-router/stack';
+import Tabs from "./(tabs)/_layout.js"
+import NotFound from "./+not-found.js"
+import SignIn from './SignIn.js';
+import { createStackNavigator } from "@react-navigation/stack";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const Stack = createStackNavigator();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -27,12 +32,10 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="signintest" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
-
+      <Stack.Navigator initialRouteName='SignIn'>
+        <Stack.Screen name="SignIn" component={SignIn} options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" component={Tabs} options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" component={NotFound}/>
+      </Stack.Navigator>
   );
 }
