@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Platform, View, Text, Button, TextInput, ScrollView, TouchableOpacity } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -7,6 +7,9 @@ import { ThemedView } from '@/components/ThemedView';
 import { createStackNavigator } from "@react-navigation/stack";
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from 'expo-router';
+
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../../firebaseConfig.js";
 
 const Stack = createStackNavigator();
 
@@ -52,9 +55,21 @@ const Heading = () => {
 
 const Body = () => {
   const navigation = useNavigation();
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful
+        // onAuthStateChanged will handle navigation
+      })
+      .catch((error) => {
+        // An error happened during sign-out
+        Alert.alert('Sign Out Error', error.message);
+      });
+  };
+
   return (
     <View style={{alignItems: "center"}}>
-      <Button title="LogOut" onPress={() => navigation.navigate("SignIn")}/>
+      <Button title="LogOut" onPress={handleSignOut}/>
     </View>
   );
 };
@@ -71,6 +86,24 @@ const Listing = () => {
 };
 
 export default function HomeScreen() {
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in
+        const uid = user.uid;
+        // You can add navigation or other logic here if needed
+        navigation.navigate("(tabs)");
+      } else {
+        // User is signed out
+        navigation.navigate("SignIn");
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup subscription on unmount
+  }, [auth]);
+  
   return (
       <Stack.Navigator>
         <Stack.Screen name="Listing" component={Listing} options={{ headerShown: false }}/>

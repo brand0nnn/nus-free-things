@@ -1,4 +1,4 @@
-import { View, Text, Button, TextInput, ScrollView} from 'react-native';
+import { View, Text, Button, TextInput, ScrollView, Alert } from 'react-native';
 import React, {useState} from 'react';
 import { useNavigation } from 'expo-router';
 
@@ -32,7 +32,7 @@ export default SignUpScreen = () => {
       .then((userCredential) => {
         // Signed up 
         const user = userCredential.user;
-        navigation.navigate("(tabs)");
+        //navigation.navigate("(tabs)");
       })
       .catch((error) => {
         const errorCode = error.code;
