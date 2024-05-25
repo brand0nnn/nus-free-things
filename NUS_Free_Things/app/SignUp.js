@@ -42,11 +42,12 @@ export default SignUpScreen = () => {
       });    
   };
 
-  function confirmPasswordsMatch(props) {
-    const { nativeEvent: { text } } = props;
-
-    if (text !== password){
-      alert("Passwords do not match, please try again.")
+  function confirmPasswordsMatch() {
+    if (password !== confirmationPassword){    
+        alert("Passwords do not match");
+    }
+    else {
+        handleSignUp();
     }
   };
 
@@ -78,7 +79,9 @@ export default SignUpScreen = () => {
                 secureTextEntry={true}
                 onSubmitEditing={confirmPasswordsMatch}
                 />
-                <Button title="Sign Up" onPress={handleSignUp}/>
+                <Button title="Sign Up" 
+                    onPress={confirmPasswordsMatch}
+                />
             </View>
         </View>
     </View>
