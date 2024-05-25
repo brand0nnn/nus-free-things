@@ -26,26 +26,12 @@ const SignInScreen = () => {
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in
-        const uid = user.uid;
-        // You can add navigation or other logic here if needed
-      } else {
-        // User is signed out
-      }
-    });
-
-    return () => unsubscribe(); // Cleanup subscription on unmount
-  }, [auth]);
-
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
-        navigation.navigate("(tabs)");
+        //navigation.navigate("(tabs)");
       })
       .catch((error) => {
         const errorCode = error.code;
