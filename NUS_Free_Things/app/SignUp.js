@@ -60,9 +60,7 @@ export default SignUpScreen = () => {
                 onChangeText={setConfirmationPassword}
                 secureTextEntry={true}
                 onSubmitEditing={confirmPasswordsMatch}
-                />
-                <Text>{confirmationPassword}</Text>
-                <Text>{password}</Text>
+                />              
                 <Button title="Sign Up" 
                     onPress={confirmPasswordsMatch}
                 />
