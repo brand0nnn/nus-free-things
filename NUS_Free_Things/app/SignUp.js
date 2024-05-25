@@ -24,11 +24,12 @@ export default SignUpScreen = () => {
   const [confirmationPassword, setConfirmationPassword] = useState("");
   const navigation = useNavigation();
   
-  function confirmPasswordsMatch(props) {
-    const { nativeEvent: { text } } = props;
-
-    if (text !== password){
-      alert("Passwords do not match, please try again.")
+  function confirmPasswordsMatch() {
+    if (password !== confirmationPassword){    
+        alert("Passwords do not match");
+    }
+    else {
+        navigation.navigate("(tabs)");
     }
   };
 
@@ -60,7 +61,11 @@ export default SignUpScreen = () => {
                 secureTextEntry={true}
                 onSubmitEditing={confirmPasswordsMatch}
                 />
-                <Button title="Sign Up" onPress={() => navigation.navigate("(tabs)")}/>
+                <Text>{confirmationPassword}</Text>
+                <Text>{password}</Text>
+                <Button title="Sign Up" 
+                    onPress={confirmPasswordsMatch}
+                />
             </View>
         </View>
     </View>
