@@ -2,6 +2,9 @@ import { View, Text, Button, TextInput, ScrollView} from 'react-native';
 import React, {useState} from 'react';
 import { useNavigation } from 'expo-router';
 
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebaseConfig.js";
+
 function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry, onSubmitEditing }) {
     return (
       <View style={{ padding: 16 }}>
@@ -24,6 +27,21 @@ export default SignUpScreen = () => {
   const [confirmationPassword, setConfirmationPassword] = useState("");
   const navigation = useNavigation();
   
+  const handleSignUp = () => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed up 
+        const user = userCredential.user;
+        navigation.navigate("(tabs)");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        Alert.alert("Sign Up Error", errorMessage);
+        // ..
+      });    
+  };
+
   function confirmPasswordsMatch(props) {
     const { nativeEvent: { text } } = props;
 
@@ -60,7 +78,7 @@ export default SignUpScreen = () => {
                 secureTextEntry={true}
                 onSubmitEditing={confirmPasswordsMatch}
                 />
-                <Button title="Sign Up" onPress={() => navigation.navigate("(tabs)")}/>
+                <Button title="Sign Up" onPress={handleSignUp}/>
             </View>
         </View>
     </View>

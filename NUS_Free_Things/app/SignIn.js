@@ -2,7 +2,7 @@ import { View, Text, Button, TextInput, Alert, TouchableOpacity } from 'react-na
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from 'expo-router';
 
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebaseConfig.js";
 
 function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry, onSubmitEditing }) {
@@ -39,22 +39,6 @@ const SignInScreen = () => {
 
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, [auth]);
-
-  const handleSignUp = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed up 
-        const user = userCredential.user;
-        //TODO: Change the line of code below to navigate to home page   
-        navigation.navigate("(tabs)");
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        Alert.alert("Sign Up Error", errorMessage);
-        // ..
-      });    
-  };
 
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, email, password)
