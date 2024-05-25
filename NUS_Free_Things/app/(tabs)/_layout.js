@@ -5,7 +5,7 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Explore from './explore.js';
-import Index from './index.js';
+import index from './index.js';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,7 +20,7 @@ export default function TabLayout() {
         }}>
         <Tab.Screen
           name="index"
-          component={Index}
+          component={index}
           options={{
             title: 'Listings',
             tabBarIcon: ({ color, focused }) => (

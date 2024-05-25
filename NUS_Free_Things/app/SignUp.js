@@ -1,6 +1,9 @@
-import { View, Text, Button, TextInput, ScrollView} from 'react-native';
+import { View, Text, Button, TextInput, Alert, ScrollView} from 'react-native';
 import React, {useState} from 'react';
 import { useNavigation } from 'expo-router';
+
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebaseConfig.js";
 
 function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry, onSubmitEditing }) {
     return (
@@ -24,12 +27,27 @@ export default SignUpScreen = () => {
   const [confirmationPassword, setConfirmationPassword] = useState("");
   const navigation = useNavigation();
   
+  const handleSignUp = () => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed up 
+        const user = userCredential.user;
+        navigation.navigate("(tabs)");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        Alert.alert("Sign Up Error", errorMessage);
+        // ..
+      });    
+  };
+
   function confirmPasswordsMatch() {
     if (password !== confirmationPassword){    
         alert("Passwords do not match");
     }
     else {
-        navigation.navigate("(tabs)");
+        handleSignUp();
     }
   };
 
