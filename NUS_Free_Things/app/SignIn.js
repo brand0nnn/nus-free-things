@@ -1,4 +1,4 @@
-import { View, Text, Button, TextInput, Alert, Image } from 'react-native';
+import { View, Text, Button, TextInput, Alert, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from 'expo-router';
 
@@ -45,6 +45,7 @@ const SignInScreen = () => {
       .then((userCredential) => {
         // Signed up 
         const user = userCredential.user;
+        //TODO: Change the line of code below to navigate to home page   
         navigation.navigate("(tabs)");
       })
       .catch((error) => {
@@ -52,7 +53,7 @@ const SignInScreen = () => {
         const errorMessage = error.message;
         Alert.alert("Sign Up Error", errorMessage);
         // ..
-      });
+      });    
   };
 
   const handleSignIn = () => {
@@ -81,9 +82,12 @@ const SignInScreen = () => {
         <View style={{width: 220}}>
           <Button title="Login" onPress={handleSignIn}/>
         </View>
+        <TouchableOpacity onPress={() => navigation.navigate("SignUp")} style={{paddingTop: 10}}>
+          <Text>Don't have an account?</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-export default SignInScreen
+export default SignInScreen;
