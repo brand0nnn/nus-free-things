@@ -1,9 +1,9 @@
 import { View, Text, Button, TextInput, Alert, TouchableOpacity } from 'react-native';
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from 'expo-router';
 
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import app from "../firebaseConfig.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebaseConfig.js";
 
 function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry, onSubmitEditing }) {
     return (
@@ -22,11 +22,23 @@ function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEnt
 }
   
 const SignInScreen = () => {
-  const auth = getAuth(app);  
-  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in
+        const uid = user.uid;
+        // You can add navigation or other logic here if needed
+      } else {
+        // User is signed out
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup subscription on unmount
+  }, [auth]);
 
   const handleSignUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
@@ -34,7 +46,7 @@ const SignInScreen = () => {
         // Signed up 
         const user = userCredential.user;
         //TODO: Change the line of code below to navigate to home page   
-        navigation.navigate("(tabs)");   
+        navigation.navigate("(tabs)");
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -43,6 +55,20 @@ const SignInScreen = () => {
         // ..
       });    
   };
+
+  const handleSignIn = () => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        navigation.navigate("(tabs)");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        Alert.alert("Sign In Error", errorMessage);
+      });
+  }
 
   return (
     <View style={{flex: 1}}>
@@ -54,7 +80,7 @@ const SignInScreen = () => {
         <InputWithLabel label="Email" placeholder="Type your email here" value={email} onChangeText={setEmail} />
         <InputWithLabel label="Password" placeholder="Type your password here" value={password} onChangeText={setPassword} secureTextEntry={true} />
         <View style={{width: 220}}>
-          <Button title="Login" onPress={handleSignUp}/>
+          <Button title="Login" onPress={handleSignIn}/>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate("SignUp")} style={{paddingTop: 10}}>
           <Text>Don't have an account?</Text>
