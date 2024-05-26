@@ -37,7 +37,6 @@ export default function RootLayout() {
         <Stack.Screen name="SignIn" component={SignIn} options={{ headerShown: false }} />
         <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" component={Tabs} options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" component={NotFound}/>
       </Stack.Navigator>
   );
 }
