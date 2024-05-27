@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, View, Text, Button, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Platform, View, Text, Button, TextInput, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -9,8 +9,8 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from 'expo-router';
 
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../../firebaseConfig.js";
-
+import { collection, getDocs } from "firebase/firestore"; 
+import { auth, db } from "../../firebaseConfig.js";
 
 const Stack = createStackNavigator();
 
@@ -55,6 +55,26 @@ const Heading = () => {
 
 const Body = () => {
   const navigation = useNavigation();
+  const [listings, setListings] = useState([]);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'listings'));
+        const listingsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setListings(listingsData);
+      } catch (error) {
+        console.error('Error fetching listings:', error);
+        Alert.alert('Error', 'Failed to fetch listings');
+      }
+    };
+
+    fetchListings();
+  }, []);
+
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
@@ -71,13 +91,13 @@ const Body = () => {
     <ScrollView>
       <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
         {
-          data.cards.map((card) => (
+          listings.map(listings => (
             <Card
-              key={card.id}
-              name={card.name}
-              expiry={card.expiry}
-              pickup={card.pickup}
-              url={card.url}
+              key={listings.id}
+              name={listings.name}
+              expiry={listings.expiry}
+              pickup={listings.pickup}
+              url={listings.url}
             />
           ))
         }

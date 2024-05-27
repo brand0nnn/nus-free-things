@@ -22,7 +22,6 @@ function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEnt
 }
   
 const SignInScreen = () => {
-  const provider = new GoogleAuthProvider();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, View, Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Pressable } from 'react-native';
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../../firebaseConfig.js";
 
 function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry, onSubmitEditing }) {
     return (
@@ -32,67 +34,86 @@ const UploadListings = () => {
   // Function to pick an image from  
   //the device's media library 
   const pickImage = async () => { 
-      const { status } = await ImagePicker. 
-          requestMediaLibraryPermissionsAsync(); 
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync(); 
+    if (status !== "granted") { 
+    // If permission is denied, show an alert 
+        Alert.alert( 
+            "Permission Denied", 
+            `Sorry, we need camera  
+            roll permission to upload images.` 
+            ); 
+    } else { 
+        // Launch the image library and get 
+        // the selected image 
+        const result = await ImagePicker.launchImageLibraryAsync(); 
+        console.log("ImagePicker result:", result.uri);
 
-      if (status !== "granted") { 
+        if (!result.cancelled) { 
 
-          // If permission is denied, show an alert 
-          Alert.alert( 
-              "Permission Denied", 
-              `Sorry, we need camera  
-               roll permission to upload images.` 
-          ); 
-      } else { 
+            // If an image is selected (not cancelled),  
+            // update the file state variable 
+            setFile(result.uri); 
 
-          // Launch the image library and get 
-          // the selected image 
-          const result = 
-              await ImagePicker.launchImageLibraryAsync(); 
-
-          if (!result.cancelled) { 
-
-              // If an image is selected (not cancelled),  
-              // update the file state variable 
-              setFile(result.uri); 
-
-              // Clear any previous errors 
-              setError(null); 
-          } 
-      } 
+            // Clear any previous errors 
+            setError(null); 
+            console.log(result.uri);
+        }
+    } 
   }; 
 
+  const handleSubmit = async () => {
+    try {
+        const docRef = await addDoc(collection(db, "listings"), {
+          name: name,
+          expiry: expiry,
+          pickup: PickUp,
+          imageUri: file,
+        });
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+        setError("Error adding document");
+      }
+  };
+
   return ( 
-      <View style={styles.container}> 
-          <InputWithLabel label="Name" placeholder="Name of item" value={name} onChangeText={setName} />
-          <InputWithLabel label="Expiry" placeholder="Expiry date" value={expiry} onChangeText={setExpiry} />
-          <InputWithLabel label="Location" placeholder="Pick up location" value={PickUp} onChangeText={setPickUp} />
-          <Text style={styles.header}> 
-              Add Image: 
-          </Text> 
+    <View style={styles.container}> 
+        <InputWithLabel label="Name" placeholder="Name of item" value={name} onChangeText={setName} />
+        <InputWithLabel label="Expiry" placeholder="Expiry date" value={expiry} onChangeText={setExpiry} />
+        <InputWithLabel label="Location" placeholder="Pick up location" value={PickUp} onChangeText={setPickUp} />
+        <Text style={styles.header}> 
+            Add Image: 
+        </Text> 
 
-          {/* Button to choose an image */} 
-          <TouchableOpacity style={styles.button} 
-              onPress={pickImage}> 
-              <Text style={styles.buttonText}> 
-                  Choose Image 
-              </Text> 
-          </TouchableOpacity> 
+        {/* Button to choose an image */} 
+        <TouchableOpacity style={styles.button} 
+            onPress={pickImage}> 
+            <Text style={styles.buttonText}> 
+                Choose Image 
+            </Text> 
+        </TouchableOpacity> 
 
-          {/* Conditionally render the image  
-          or error message */} 
-          {file ? ( 
-              // Display the selected image 
-              <View style={styles.imageContainer}> 
-                  <Image source={{ uri: file }} 
-                      style={styles.image} /> 
-              </View> 
-          ) : ( 
-              // Display an error message if there's  
-              // an error or no image selected 
-              <Text style={styles.errorText}>{error}</Text> 
-          )} 
-      </View> 
+        {/* Conditionally render the image  
+        or error message */} 
+        {file ? ( 
+            // Display the selected image 
+            <View style={styles.imageContainer}> 
+                <Image source={{ uri: file }} 
+                    style={styles.image} /> 
+            </View> 
+        ) : ( 
+            // Display an error message if there's  
+            // an error or no image selected 
+            <Text style={styles.errorText}>{error}</Text> 
+        )} 
+        
+        <TouchableOpacity style={styles.button} 
+            onPress={handleSubmit}> 
+            <Text style={styles.buttonText}> 
+                Upload Listing
+            </Text> 
+        </TouchableOpacity> 
+    </View> 
   ); 
 } 
 
