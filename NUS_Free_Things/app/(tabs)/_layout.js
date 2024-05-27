@@ -6,6 +6,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Explore from './explore.js';
 import Index from './index.js';
+import UploadListings from './uploadListings.js';
 
 const Tab = createBottomTabNavigator();
 
@@ -25,6 +26,16 @@ export default function TabLayout() {
             title: 'Listings',
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name={focused ? 'search' : 'search-outline'} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="uploadListings"
+          component={UploadListings}
+          options={{
+            title: 'Upload Listings',
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon name={focused ? 'duplicate' : 'duplicate-outline'} color={color} />
             ),
           }}
         />
