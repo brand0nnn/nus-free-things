@@ -4,6 +4,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Pressable } from 'react-native';
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig.js";
+import { createStackNavigator } from "@react-navigation/stack";
+import { useNavigation } from 'expo-router';
 
 function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry, onSubmitEditing }) {
     return (
@@ -29,10 +31,12 @@ const UploadListings = () => {
   const [file, setFile] = useState(""); 
   
   // Stores any error message 
-  const [error, setError] = useState("error"); 
+  const [error, setError] = useState(""); 
 
   // Function to pick an image from  
   //the device's media library 
+  const navigation = useNavigation();
+
   const pickImage = async () => { 
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync(); 
     if (status !== "granted") { 
@@ -61,19 +65,25 @@ const UploadListings = () => {
     } 
   }; 
 
-  const handleSubmit = async () => {
-    try {
-        const docRef = await addDoc(collection(db, "listings"), {
-          name: name,
-          expiry: expiry,
-          pickup: PickUp,
-          imageUri: file,
-        });
-        console.log("Document written with ID: ", docRef.id);
-      } catch (e) {
-        console.error("Error adding document: ", e);
-        setError("Error adding document");
-      }
+  
+
+
+    const handleSubmit = async () => {
+
+        try {
+            const docRef = await addDoc(collection(db, "listings"), {
+            name: name,
+            expiry: expiry,
+            pickup: PickUp,
+            imageUri: file,
+            });
+            
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
+            setError("Error adding document");
+        }
+        navigation.navigate("SuccessfulPage");
   };
 
   return ( 
@@ -82,7 +92,7 @@ const UploadListings = () => {
         <InputWithLabel label="Expiry" placeholder="Expiry date" value={expiry} onChangeText={setExpiry} />
         <InputWithLabel label="Location" placeholder="Pick up location" value={PickUp} onChangeText={setPickUp} />
         <TouchableOpacity onPress={pickImage}> 
-            <Text style={styles.header}>Add Image:</Text> 
+            <Text style={styles.header}>Add Image</Text> 
         </TouchableOpacity> 
 
         {/* Conditionally render the image  
@@ -109,7 +119,25 @@ const UploadListings = () => {
   ); 
 } 
 
-export default UploadListings;
+const SuccessfulPage = () => {
+    return (
+        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+            <Text style={{fontSize: 30}}>Listing uploaded successfully!</Text>
+        </View>
+    )
+}
+
+const Main = () => {
+    const Stack = createStackNavigator();
+
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="UploadListings" component={UploadListings} options={{ headerShown: false }} />
+            <Stack.Screen name="SuccessfulPage" component={SuccessfulPage} options={{ headerShown: false }} />
+        </Stack.Navigator>
+    );
+};
+export default Main;
 
 const styles = StyleSheet.create({ 
   container: { 
