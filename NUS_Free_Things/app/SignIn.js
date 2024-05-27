@@ -1,8 +1,8 @@
 import { View, Text, Button, TextInput, Alert, TouchableOpacity } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigation } from 'expo-router';
 
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig.js";
 
 function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry, onSubmitEditing }) {
@@ -22,6 +22,7 @@ function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEnt
 }
   
 const SignInScreen = () => {
+  const provider = new GoogleAuthProvider();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
