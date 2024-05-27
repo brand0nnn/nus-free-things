@@ -62,25 +62,21 @@ const UploadListings = () => {
         }
     } 
   }; 
-
-  
-
-
-    const handleSubmit = async () => {
-        try {
-            const docRef = await addDoc(collection(db, "listings"), {
-            name: name,
-            expiry: expiry,
-            pickup: PickUp,
-            imageUri: file,
-            });
-            
-            console.log("Document written with ID: ", docRef.id);
-        } catch (e) {
-            console.error("Error adding document: ", e);
-            setError("Error adding document");
-        }
-        navigation.navigate("SuccessfulPage");
+  const handleSubmit = async () => {
+    try {
+        const docRef = await addDoc(collection(db, "listings"), {
+        name: name,
+        expiry: expiry,
+        pickup: PickUp,
+        imageUri: file,
+        });
+        
+        console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+        console.error("Error adding document: ", e);
+        setError("Error adding document");
+    }
+    navigation.navigate("SuccessfulPage");
   };
 
   return ( 

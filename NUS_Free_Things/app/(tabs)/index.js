@@ -9,7 +9,7 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from 'expo-router';
 
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, getDocs } from "firebase/firestore"; 
+import { collection, getDocs, onSnapshot } from "firebase/firestore"; 
 import { auth, db } from "../../firebaseConfig.js";
 
 const Stack = createStackNavigator();
@@ -58,21 +58,19 @@ const Body = () => {
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'listings'));
-        const listingsData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setListings(listingsData);
-      } catch (error) {
-        console.error('Error fetching listings:', error);
-        Alert.alert('Error', 'Failed to fetch listings');
-      }
-    };
+    const unsubscribe = onSnapshot(collection(db, 'listings'), (querySnapshot) => {
+      const listingsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setListings(listingsData);
+    }, (error) => {
+      console.error('Error fetching listings:', error);
+      Alert.alert('Error', 'Failed to fetch listings');
+    });
 
-    fetchListings();
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   const handleSignOut = () => {
