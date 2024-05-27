@@ -11,8 +11,8 @@ import { useNavigation } from 'expo-router';
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../../firebaseConfig.js";
 
-const Stack = createStackNavigator();
 
+const Stack = createStackNavigator();
 
 const Chatroom = () => {
   return (
@@ -41,7 +41,7 @@ const Heading = () => {
   const navigation = useNavigation();
 
   return (
-    <View style={{flexDirection: "row", padding: 25}}>
+    <View style={{flexDirection: "row", paddingTop: 25, paddingHorizontal: 10}}>
       <View style={{flex: 1}}>
         <InputWithLabel placeholder="Search" value={search} onChangeText={setSearch}/>
       </View>
@@ -68,20 +68,92 @@ const Body = () => {
   };
 
   return (
-    <View style={{alignItems: "center"}}>
-      <Button title="LogOut" onPress={handleSignOut}/>
-    </View>
+    <ScrollView>
+      <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
+        {
+          data.cards.map((card) => (
+            <Card
+              key={card.id}
+              name={card.name}
+              expiry={card.expiry}
+              pickup={card.pickup}
+              url={card.url}
+            />
+          ))
+        }
+      </View>
+      <View style={{paddingTop: 20}}>
+        <Button title="LogOut" onPress={handleSignOut}/>
+      </View>
+    </ScrollView>
   );
 };
+// card for viewing listings
+
+const PreviewImage = (props) => (
+  <Image
+    style={styles.preview}
+    source={{ uri: props.url }}
+  />
+)
+
+const Name = (props) => (
+  <Text style={styles.name}>{props.name}</Text>
+);
+
+const Expiry = (props) => (
+  <Text style={styles.expiry}>Expires in {props.expiry}</Text>
+);
+
+const Pickup = (props) => (
+  <Text style={styles.pickup}>Pick up at {props.pickup}</Text>
+);
+
+const Card = (props) => (
+  <View style={cardStyles.card}>
+    <PreviewImage url={props.url} />
+    <Name name={props.name} />
+    <Expiry expiry={props.expiry} />
+    <Pickup pickup={props.pickup} />
+  </View>
+);
+
+const styles = StyleSheet.create({
+  preview: {
+    height: 160,
+    width: 176,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  expiry: {
+    fontSize: 16,
+  },
+  pickup: {
+    fontSize: 16,
+  },
+});
+
+const cardStyles = StyleSheet.create({
+  card: {
+    width: 200,
+    height: 256,
+    padding: 12,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: "#E7E3EB",
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+  },
+});
 
 const Listing = () => {
   return (  
-    <ScrollView>
-      <View>
-        <Heading />
-        <Body/>
-      </View>
-    </ScrollView>
+    <View style={{flex: 1}}>
+      <Heading />
+      <Body />
+    </View>
   );
 };
 
@@ -112,21 +184,81 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+
+// Fake data for testing
+
+const data = {
+  cards: [
+    {
+      id: 'card-1',
+      name: 'Cheese',
+      expiry: '3 Days',
+      pickup: 'Utown',
+      url: 'https://www.noracooks.com/wp-content/uploads/2020/05/square.jpg',
+    },
+    {
+      id: 'card-2',
+      name: 'Bread',
+      expiry: '2 Days',
+      pickup: 'Raffles Hall',
+      url: 'https://assets.bonappetit.com/photos/5c62e4a3e81bbf522a9579ce/16:9/w_4000,h_2250,c_limit/milk-bread.jpg',
+    },
+    {
+      id: 'card-3',
+      name: 'Corn',
+      expiry: '1 Days',
+      pickup: 'Tembusu',
+      url: 'https://www.allrecipes.com/thmb/TkTP3fQnTpMhNtC_n4HMmCsIwsE=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/222352-jamies-sweet-and-easy-corn-on-the-cob-rae-3x2-1-de041c9cd6ab4b40808368dc5cd96757.jpg',
+    },
+    {
+      id: 'card-4',
+      name: 'Apple',
+      expiry: '5 Days',
+      pickup: 'RC4',
+      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
+    },
+    {
+      id: 'card-5',
+      name: 'Apple',
+      expiry: '5 Days',
+      pickup: 'RC4',
+      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
+    },
+    {
+      id: 'card-6',
+      name: 'Apple',
+      expiry: '5 Days',
+      pickup: 'RC4',
+      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
+    },
+    {
+      id: 'card-7',
+      name: 'Apple',
+      expiry: '5 Days',
+      pickup: 'RC4',
+      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
+    },
+    {
+      id: 'card-8',
+      name: 'Apple',
+      expiry: '5 Days',
+      pickup: 'RC4',
+      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
+    },
+    {
+      id: 'card-9',
+      name: 'Apple',
+      expiry: '5 Days',
+      pickup: 'RC4',
+      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
+    },
+    {
+      id: 'card-10',
+      name: 'Apple',
+      expiry: '5 Days',
+      pickup: 'RC4',
+      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
+    },
+  ],
+};
+
