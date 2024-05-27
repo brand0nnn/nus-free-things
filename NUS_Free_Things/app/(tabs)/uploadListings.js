@@ -50,7 +50,6 @@ const UploadListings = () => {
         // Launch the image library and get 
         // the selected image 
         const result = await ImagePicker.launchImageLibraryAsync(); 
-        console.log("ImagePicker result:", result.assets[0].uri);
 
         if (!result.canceled) { 
 
@@ -60,7 +59,6 @@ const UploadListings = () => {
 
             // Clear any previous errors 
             setError(null); 
-            console.log(result.assets[0].uri);
         }
     } 
   }; 
@@ -69,7 +67,6 @@ const UploadListings = () => {
 
 
     const handleSubmit = async () => {
-
         try {
             const docRef = await addDoc(collection(db, "listings"), {
             name: name,

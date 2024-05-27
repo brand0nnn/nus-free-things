@@ -97,7 +97,7 @@ const Body = () => {
               name={listings.name}
               expiry={listings.expiry}
               pickup={listings.pickup}
-              url={listings.url}
+              url={listings.imageUri}
             />
           ))
         }
