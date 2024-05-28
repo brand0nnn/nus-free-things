@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput } from 'react-native';
+import { Button, View, Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Pressable } from 'react-native';
 import { collection, addDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db } from "../../firebaseConfig.js";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from 'expo-router';
@@ -62,15 +63,35 @@ const UploadListings = () => {
         }
     } 
   }; 
+
+  const uploadImage = async (uri) => {
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      const storage = getStorage();
+      const storageRef = ref(storage, `images/${Date.now()}`);
+      await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(storageRef);
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading image: ", error);
+      setError("Error uploading image");
+      throw error;
+    }
+  };
+
   const handleSubmit = async () => {
     try {
+        let imageUrl = "";
+        if (file) {
+            imageUrl = await uploadImage(file);
+        }
         const docRef = await addDoc(collection(db, "listings"), {
-        name: name,
-        expiry: expiry,
-        pickup: PickUp,
-        imageUri: file,
+            name: name,
+            expiry: expiry,
+            pickup: PickUp,
+            imageUrl: imageUrl,
         });
-        
         console.log("Document written with ID: ", docRef.id);
     } catch (e) {
         console.error("Error adding document: ", e);
