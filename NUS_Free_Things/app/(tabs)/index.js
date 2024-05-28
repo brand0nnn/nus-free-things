@@ -95,7 +95,7 @@ const Body = () => {
               name={listings.name}
               expiry={listings.expiry}
               pickup={listings.pickup}
-              url={listings.imageUri}
+              url={listings.imageUrl}
             />
           ))
         }
@@ -139,7 +139,10 @@ const Card = (props) => (
 const styles = StyleSheet.create({
   preview: {
     height: 160,
-    width: 176,
+    width: 148,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   name: {
     fontSize: 18,
@@ -155,7 +158,7 @@ const styles = StyleSheet.create({
 
 const cardStyles = StyleSheet.create({
   card: {
-    width: 200,
+    width: 176,
     height: 256,
     padding: 12,
     marginRight: 12,

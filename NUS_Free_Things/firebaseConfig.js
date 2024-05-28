@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "@firebase/auth/dist/rn/index.js";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -16,7 +17,7 @@ const firebaseConfig = {
   storageBucket: "nus-free-things.appspot.com",
   messagingSenderId: "111516422505",
   appId: "1:111516422505:web:5e1d33fed64df7d2f12df8",
-  measurementId: "G-X79RWF2KWD"
+  measurementId: "G-X79RWF2KWD",
 };
 
 // Initialize Firebase
