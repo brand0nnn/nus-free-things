@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput } from 'react-native';
+import { Button, View, Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Pressable } from 'react-native';
 import { collection, addDoc } from "firebase/firestore";
