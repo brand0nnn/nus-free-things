@@ -52,7 +52,6 @@ const Heading = () => {
   );
 };
 
-
 const Body = () => {
   const navigation = useNavigation();
   const [listings, setListings] = useState([]);
