@@ -24,10 +24,28 @@ function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEnt
     );
 };
 
+function TextBox({ label, placeholder, value, onChangeText, onSubmitEditing, multiline, numberOfLines }) {
+    return (
+      <View style={{ padding: 16 }}>
+        <Text style={{ padding: 8, fontSize: 18 }}>{label}</Text>
+        <TextInput
+          multiline={multiline}
+          numberOfLines={numberOfLines}
+          placeholder={placeholder}
+          value={value}
+          onChangeText={onChangeText}
+          onSubmitEditing={onSubmitEditing}
+          style={{ padding: 8, fontSize: 18, height: 100, width: 220, backgroundColor: "#DBD8D7" }}
+        />
+      </View>
+    );
+};
+
 const UploadListings = () => {
   const [name, setName] = useState("");
   const [expiry, setExpiry] = useState("");
   const [PickUp, setPickUp] = useState("");
+  const [description, setDescription] = useState("");
   // Stores the selected image URI 
   const [file, setFile] = useState(""); 
   
@@ -91,6 +109,7 @@ const UploadListings = () => {
             expiry: expiry,
             pickup: PickUp,
             imageUrl: imageUrl,
+            description: description,
         });
         console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -105,6 +124,7 @@ const UploadListings = () => {
         <InputWithLabel label="Name" placeholder="Name of item" value={name} onChangeText={setName} />
         <InputWithLabel label="Expiry" placeholder="Expiry date" value={expiry} onChangeText={setExpiry} />
         <InputWithLabel label="Location" placeholder="Pick up location" value={PickUp} onChangeText={setPickUp} />
+        <TextBox label="Desription" multiline={true} numberOfLines={4} value={description} onChangeText={setDescription} />
         <TouchableOpacity onPress={pickImage}> 
             <Text style={styles.header}>Add Image</Text> 
         </TouchableOpacity> 

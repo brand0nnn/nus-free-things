@@ -4,6 +4,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { createStackNavigator } from "@react-navigation/stack";
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from 'expo-router';
@@ -88,14 +89,22 @@ const Body = () => {
     <ScrollView>
       <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
         {
+          
           listings.map(listings => (
-            <Card
-              key={listings.id}
-              name={listings.name}
-              expiry={listings.expiry}
-              pickup={listings.pickup}
-              url={listings.imageUrl}
-            />
+            <TouchableOpacity key={listings.id}
+                onPress={() => navigation.navigate("CardZoomIn",
+                {
+                  listings,
+                }
+              )}>
+              <Card
+                key={listings.id}
+                name={listings.name}
+                expiry={listings.expiry}
+                pickup={listings.pickup}
+                url={listings.imageUrl}
+              />
+            </TouchableOpacity>
           ))
         }
       </View>
@@ -106,6 +115,39 @@ const Body = () => {
   );
 };
 // card for viewing listings
+
+const CardZoomIn = (props) => {
+  const navigation = useNavigation();
+  const { listings } = props.route.params;
+  return (
+    <ScrollView>
+      <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
+        <View style={{flex: 1, paddingTop: 35, paddingBottom: 10, paddingLeft: 16}}>
+          <TabBarIcon name={"arrow-back-outline"}/>
+        </View>
+      </TouchableOpacity>
+      <View style={{flex: 8}}>
+        <View style={{alignItems: "center", paddingTop: 5, flex: 4}}>
+          <Image
+            style={{width: 420, height: 450, borderRadius: 8}}
+            source={{ uri: listings.imageUrl }}
+          />
+        </View>
+        <View style={{paddingLeft: 16, flex: 3, paddingBottom: 20}}>
+          <Text style={{fontSize: 30, fontWeight: "bold", textDecorationLine: 'underline'}}>{listings.name}</Text>
+          <Text style={{paddingTop: 20, fontSize: 25, fontWeight: "bold"}}>Details</Text>
+          <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Expires in</Text>
+          <Text style={{fontSize: 20}}>{listings.expiry}</Text>
+          <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Pick up location</Text>
+          <Text style={{fontSize: 20}}>{listings.pickup}</Text>
+          <Text style={{paddingTop: 30, fontSize: 25, fontWeight: "bold"}}>Description</Text>
+          <Text style={{paddingTop: 5, fontSize: 20}}>{listings.description}</Text>
+        </View>
+      </View>
+      <Button color="#3D3B3B" title="Chat" onPress={() => navigation.navigate("Chats")}/>
+    </ScrollView>
+  );
+};
 
 const PreviewImage = (props) => (
   <Image
@@ -139,7 +181,6 @@ const styles = StyleSheet.create({
   preview: {
     height: 160,
     width: 148,
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -200,85 +241,7 @@ export default function HomeScreen() {
       <Stack.Navigator>
         <Stack.Screen name="Listing" component={Listing} options={{ headerShown: false }}/>
         <Stack.Screen name="Chats" component={Chatroom}/>
+        <Stack.Screen name="CardZoomIn" component={CardZoomIn} options={{ headerShown: false }}/>
       </Stack.Navigator>
   );
 }
-
-
-// Fake data for testing
-
-const data = {
-  cards: [
-    {
-      id: 'card-1',
-      name: 'Cheese',
-      expiry: '3 Days',
-      pickup: 'Utown',
-      url: 'https://www.noracooks.com/wp-content/uploads/2020/05/square.jpg',
-    },
-    {
-      id: 'card-2',
-      name: 'Bread',
-      expiry: '2 Days',
-      pickup: 'Raffles Hall',
-      url: 'https://assets.bonappetit.com/photos/5c62e4a3e81bbf522a9579ce/16:9/w_4000,h_2250,c_limit/milk-bread.jpg',
-    },
-    {
-      id: 'card-3',
-      name: 'Corn',
-      expiry: '1 Days',
-      pickup: 'Tembusu',
-      url: 'https://www.allrecipes.com/thmb/TkTP3fQnTpMhNtC_n4HMmCsIwsE=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/222352-jamies-sweet-and-easy-corn-on-the-cob-rae-3x2-1-de041c9cd6ab4b40808368dc5cd96757.jpg',
-    },
-    {
-      id: 'card-4',
-      name: 'Apple',
-      expiry: '5 Days',
-      pickup: 'RC4',
-      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
-    },
-    {
-      id: 'card-5',
-      name: 'Apple',
-      expiry: '5 Days',
-      pickup: 'RC4',
-      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
-    },
-    {
-      id: 'card-6',
-      name: 'Apple',
-      expiry: '5 Days',
-      pickup: 'RC4',
-      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
-    },
-    {
-      id: 'card-7',
-      name: 'Apple',
-      expiry: '5 Days',
-      pickup: 'RC4',
-      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
-    },
-    {
-      id: 'card-8',
-      name: 'Apple',
-      expiry: '5 Days',
-      pickup: 'RC4',
-      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
-    },
-    {
-      id: 'card-9',
-      name: 'Apple',
-      expiry: '5 Days',
-      pickup: 'RC4',
-      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
-    },
-    {
-      id: 'card-10',
-      name: 'Apple',
-      expiry: '5 Days',
-      pickup: 'RC4',
-      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO8cqwcVTXLr1ClylUyrurV8kYdPaEztkbhrbpdQxgMQ&s',
-    },
-  ],
-};
-
