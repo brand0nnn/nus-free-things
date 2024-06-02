@@ -39,16 +39,6 @@ export default function TabLayout() {
             ),
           }}
         />
-        <Tab.Screen
-          name="explore"
-          component={Explore}
-          options={{
-            title: 'Explore',
-            tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-            ),
-          }}
-        />
       </Tab.Navigator>
   );
 }
