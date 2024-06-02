@@ -1,6 +1,7 @@
-import { View, Text, Button, TextInput, ScrollView, Alert } from 'react-native';
+import { View, Text, Button, TextInput, ScrollView, Alert, Image, TouchableOpacity } from 'react-native';
 import React, {useState} from 'react';
 import { useNavigation } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig.js";
@@ -53,37 +54,88 @@ export default SignUpScreen = () => {
 
   return (
     <View style={{flex: 1}}>
-        <View style={{flex: 1, backgroundColor: "#2AAAF9", justifyContent: "center", alignItems: "center"}}>
-            <Text style={{color: "white", fontSize: 35}}>Sign Up</Text>
+      <View style={{ padding: 20, justifyContent: "center", alignItems: "center", flex: 8 }}>
+        <View style={{paddingBottom: 20}}>
+          <Image 
+            source={require('../assets/images/NUS_Free_Things Logo.png')}
+            style={{ width: 300, height: 110, marginBottom: 20}} 
+          />
         </View>
-        <View style={{flex: 9, justifyContent: "center", alignItems: "center"}}>
-            <View style={{fontSize: 30}}>
-                <InputWithLabel
-                    label="Email"
-                    placeholder="Type your email here"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-                <InputWithLabel
-                label="Password"
-                placeholder="Type your password here"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={true}
-                />
-                <InputWithLabel
-                label="Confirm password"
-                placeholder="Confirm your password here"
-                value={confirmationPassword}
-                onChangeText={setConfirmationPassword}
-                secureTextEntry={true}
-                onSubmitEditing={confirmPasswordsMatch}
-                />
-                <Button title="Sign Up" 
-                    onPress={confirmPasswordsMatch}
-                />
-            </View>
+
+        <View style={{paddingBottom: 10, alignSelf: 'flex-start'}}>
+          <Text style={{fontSize: 24, marginBottom: 20, fontWeight: 'bold'}}>Sign Up</Text>
         </View>
+
+        <View style={{
+          flexDirection:'row', 
+          borderBottomColor:'#ccc', 
+          borderBottomWidth: 1, 
+          paddingBottom: 8, 
+          marginBottom: 25, 
+        }}>
+          <MaterialIcons name='email' size={20} color="#666" style={{marginRight:5}} />
+          <TextInput 
+            placeholder='Email Address'
+            style={{flex: 1, paddingVertical: 0}}
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+
+        <View style={{
+          flexDirection:'row', 
+          borderBottomColor:'#ccc', 
+          borderBottomWidth: 1, 
+          paddingBottom: 8, 
+          marginBottom: 25, 
+        }}>
+          <MaterialIcons name='lock' size={20} color="#666" style={{marginRight:5}} />
+          <TextInput 
+            placeholder='Password'
+            style={{flex: 1, paddingVertical: 0}}
+            secureTextEntry={true}
+            value={password}
+            onChangeText={setPassword}
+          />
+        </View>
+
+        <View style={{
+          flexDirection:'row', 
+          borderBottomColor:'#ccc', 
+          borderBottomWidth: 1, 
+          paddingBottom: 8, 
+          marginBottom: 25, 
+        }}>
+          <MaterialIcons name='lock' size={20} color="#666" style={{marginRight:5}} />
+          <TextInput 
+            placeholder='Confirm Password'
+            style={{flex: 1, paddingVertical: 0}}
+            secureTextEntry={true}
+            value={confirmationPassword}
+            onChangeText={setConfirmationPassword}
+          />
+        </View>
+
+        <TouchableOpacity 
+          onPress={confirmPasswordsMatch}
+          style={{
+            backgroundColor: '#8C52FF', 
+            padding: 20, 
+            borderRadius: 10, 
+            marginBottom: 30, 
+            width: 300,
+          }}>
+            <Text style={{textAlign:'center', fontWeight:'700', fontSize: 16, color: '#FFFFFF'}}>Register</Text>
+        </TouchableOpacity>
+
+        <View style={{flexDirection:'row', justifyContent:'center', marginBotton: 30}}>
+          <Text>Already have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
+            <Text style={{color:'#8C52FF', fontWeight:'700'}}>Sign in</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
