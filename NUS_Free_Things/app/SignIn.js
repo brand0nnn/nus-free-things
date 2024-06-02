@@ -32,7 +32,6 @@ const SignInScreen = () => {
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
-        //navigation.navigate("(tabs)");
       })
       .catch((error) => {
         const errorCode = error.code;
