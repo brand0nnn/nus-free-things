@@ -157,7 +157,7 @@ const PreviewImage = (props) => (
 )
 
 const Name = (props) => (
-  <Text style={styles.name}>{props.name}</Text>
+  <Text style={styles.name} numberOfLines={1}>{props.name}</Text>
 );
 
 const Expiry = (props) => (

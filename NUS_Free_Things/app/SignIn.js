@@ -43,14 +43,17 @@ const SignInScreen = () => {
 
   return (
     <View style={{flex: 1}}>
-      <View style={{flex: 1, backgroundColor: "#8C52FF", justifyContent: "center", alignItems: "center"}}>
-        <Text style={{color: "white", fontSize: 35}}>Sign In</Text>
-      </View>
       <View style={{ padding: 20, justifyContent: "center", alignItems: "center", flex: 8 }}>
-        <Image 
-          source={require('../assets/images/NUS_Free_Things Logo.png')}
-          style={{ width: 300, height: 110, marginBottom: 20 }} 
-        />
+        <View style={{paddingBottom: 20}}>
+          <Image 
+            source={require('../assets/images/NUS_Free_Things Logo.png')}
+            style={{ width: 300, height: 110, marginBottom: 20}} 
+          />
+        </View>
+
+        <View style={{paddingBottom: 10, alignSelf: 'flex-start'}}>
+          <Text style={{fontSize: 24, marginBottom: 20, fontWeight: 'bold'}}>Sign in</Text>
+        </View>
 
         <View style={{
           flexDirection:'row', 
@@ -93,6 +96,7 @@ const SignInScreen = () => {
             padding: 20, 
             borderRadius: 10, 
             marginBottom: 30, 
+            width: 300,
           }}>
             <Text style={{textAlign:'center', fontWeight:'700', fontSize: 16, color: '#FFFFFF'}}>Login</Text>
         </TouchableOpacity>
