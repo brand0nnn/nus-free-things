@@ -15,7 +15,7 @@ function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEnt
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry}
           onSubmitEditing={onSubmitEditing}
-          style={{ padding: 8, fontSize: 18 }}
+          style={{ padding: 8, fontSize: 18, width: 220 }}
         />
       </View>
     );

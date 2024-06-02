@@ -47,7 +47,7 @@ const Heading = () => {
         <InputWithLabel placeholder="Search" value={search} onChangeText={setSearch}/>
       </View>
       <TouchableOpacity onPress={() => navigation.navigate("Chats")}>
-        <IonIcon name="chatbubble-outline" style={{fontSize: 30, paddingLeft: 10, paddingTop: 20}}></IonIcon>
+        <IonIcon name="chatbubble-outline" style={{fontSize: 30, paddingTop: 20}}></IonIcon>
       </TouchableOpacity>
     </View>
   );
@@ -134,9 +134,9 @@ const CardZoomIn = (props) => {
             source={{ uri: listings.imageUrl }}
           />
         </View>
-        <View style={{paddingLeft: 16, flex: 3, paddingBottom: 20}}>
-          <Text style={{fontSize: 30, fontWeight: "bold", textDecorationLine: 'underline'}}>{listings.name}</Text>
-          <Text style={{paddingTop: 20, fontSize: 25, fontWeight: "bold"}}>Details</Text>
+        <View style={{paddingLeft: 16, flex: 3, paddingBottom: 20, paddingTop: 20}}>
+          <Text style={{fontSize: 30, fontWeight: "bold"}}>{listings.name}</Text>
+          <Text style={{paddingTop: 30, fontSize: 25, fontWeight: "bold"}}>Details</Text>
           <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Expires in</Text>
           <Text style={{fontSize: 20}}>{listings.expiry}</Text>
           <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Pick up location</Text>
@@ -145,7 +145,7 @@ const CardZoomIn = (props) => {
           <Text style={{paddingTop: 5, fontSize: 20}}>{listings.description}</Text>
         </View>
       </View>
-      <Button color="#3D3B3B" title="Chat" onPress={() => navigation.navigate("Chats")}/>
+      <Button title="Chat" onPress={() => navigation.navigate("Chats")}/>
     </ScrollView>
   );
 };
@@ -172,9 +172,10 @@ const Pickup = (props) => (
 const Card = (props) => (
   <View style={cardStyles.card}>
     <PreviewImage url={props.url} />
-    <Name name={props.name} />
-    <Expiry expiry={props.expiry} />
-    <Pickup pickup={props.pickup} />
+    <View style={{paddingTop: 5}}>
+      <Name name={props.name} />
+      <Pickup pickup={props.pickup} />
+    </View>
   </View>
 );
 
@@ -184,6 +185,7 @@ const styles = StyleSheet.create({
     width: 148,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 4,
   },
   name: {
     fontSize: 18,
@@ -194,13 +196,15 @@ const styles = StyleSheet.create({
   },
   pickup: {
     fontSize: 16,
+    color: "#646667",
+    fontStyle: "italic",
   },
 });
 
 const cardStyles = StyleSheet.create({
   card: {
     width: 176,
-    height: 256,
+    height: 236,
     padding: 12,
     marginRight: 12,
     borderWidth: 1,
