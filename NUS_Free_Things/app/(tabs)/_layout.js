@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Explore from './explore.js';
 import Index from './index.js';
 import UploadListings from './uploadListings.js';
+import { Profiles } from './profile.js';
 
 const Tab = createBottomTabNavigator();
 
@@ -36,6 +37,16 @@ export default function TabLayout() {
             title: 'Upload Listings',
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name={focused ? 'duplicate' : 'duplicate-outline'} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="profile"
+          component={Profiles}
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
             ),
           }}
         />

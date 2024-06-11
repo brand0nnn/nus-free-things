@@ -1,9 +1,5 @@
 import { Image, StyleSheet, Platform, View, Text, Button, TextInput, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import React, {useState, useEffect} from 'react';
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { createStackNavigator } from "@react-navigation/stack";
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -142,6 +138,7 @@ const CardZoomIn = (props) => {
           <Text style={{fontSize: 20}}>{listings.pickup}</Text>
           <Text style={{paddingTop: 30, fontSize: 25, fontWeight: "bold"}}>Description</Text>
           <Text style={{paddingTop: 5, fontSize: 20}}>{listings.description}</Text>
+          <Text>{listings.email}</Text>
         </View>
       </View>
       <Button title="Chat" onPress={() => navigation.navigate("Chats")}/>

@@ -7,8 +7,10 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db } from "../../firebaseConfig.js";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from 'expo-router';
+import { auth } from "../../firebaseConfig.js";
+import { ScrollView } from 'react-native-gesture-handler';
 
-function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry, onSubmitEditing }) {
+function InputWithLabel({ label, placeholder, value, onChangeText }) {
     return (
       <View style={{ padding: 16 }}>
         <Text style={{ padding: 8, fontSize: 18 }}>{label}</Text>
@@ -16,15 +18,13 @@ function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEnt
           placeholder={placeholder}
           value={value}
           onChangeText={onChangeText}
-          secureTextEntry={secureTextEntry}
-          onSubmitEditing={onSubmitEditing}
           style={{ padding: 8, fontSize: 18, backgroundColor: "#DBD8D7", width: 200 }}
         />
       </View>
     );
 };
 
-function TextBox({ label, placeholder, value, onChangeText, onSubmitEditing, multiline, numberOfLines }) {
+function TextBox({ label, placeholder, value, onChangeText, multiline, numberOfLines }) {
     return (
       <View style={{ padding: 16 }}>
         <Text style={{ padding: 8, fontSize: 18 }}>{label}</Text>
@@ -34,7 +34,6 @@ function TextBox({ label, placeholder, value, onChangeText, onSubmitEditing, mul
           placeholder={placeholder}
           value={value}
           onChangeText={onChangeText}
-          onSubmitEditing={onSubmitEditing}
           style={{ padding: 8, fontSize: 18, height: 100, width: 220, backgroundColor: "#DBD8D7" }}
         />
       </View>
@@ -46,6 +45,8 @@ const UploadListings = () => {
   const [expiry, setExpiry] = useState("");
   const [PickUp, setPickUp] = useState("");
   const [description, setDescription] = useState("");
+  const [errors, setErrors] = useState({}); 
+  const [isFormValid, setIsFormValid] = useState(false); 
   // Stores the selected image URI 
   const [file, setFile] = useState(""); 
   
@@ -55,6 +56,48 @@ const UploadListings = () => {
   // Function to pick an image from  
   //the device's media library 
   const navigation = useNavigation();
+  
+  const getCurrentUserEmail = () => {
+    const currentUser = auth.currentUser;
+  
+    if (currentUser) {
+      return currentUser.email;
+    } else {
+      return null;
+    }
+  };
+
+  const email = getCurrentUserEmail();
+
+  useEffect(() => {
+    validateForm();
+  }, [name, expiry, PickUp, description]);
+
+  const validateForm = () => {
+    let errors = {};
+
+    if (!name){
+        errors.name = '*Name is required';
+    }
+
+    if (!expiry){
+        errors.expiry = '*Expiry date is required';
+    }
+
+    if (!PickUp){
+        errors.PickUp = '*Pick up location is required';
+    }
+
+    if (!description){
+        errors.description = '*Description is required';
+    }
+
+    if (!file){
+        errors.file = '*Image is required';
+    }
+    setErrors(errors);
+    setIsFormValid(Object.keys(errors).length === 0);
+  };
 
   const pickImage = async () => { 
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync(); 
@@ -110,6 +153,7 @@ const UploadListings = () => {
             pickup: PickUp,
             imageUrl: imageUrl,
             description: description,
+            email: email,
         });
         console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -120,36 +164,45 @@ const UploadListings = () => {
   };
 
   return ( 
-    <View style={styles.container}> 
-        <InputWithLabel label="Name" placeholder="Name of item" value={name} onChangeText={setName} />
-        <InputWithLabel label="Expiry" placeholder="Expiry date" value={expiry} onChangeText={setExpiry} />
-        <InputWithLabel label="Location" placeholder="Pick up location" value={PickUp} onChangeText={setPickUp} />
-        <TextBox label="Desription" multiline={true} numberOfLines={4} value={description} onChangeText={setDescription} />
-        <TouchableOpacity onPress={pickImage}> 
-            <Text style={styles.header}>Add Image</Text> 
-        </TouchableOpacity> 
+    <ScrollView>
+        <View style={styles.container}> 
+            <InputWithLabel label="Name" placeholder="Name of item" value={name} onChangeText={setName} />
+            <InputWithLabel label="Expiry" placeholder="Expiry date" value={expiry} onChangeText={setExpiry} />
+            <InputWithLabel label="Location" placeholder="Pick up location" value={PickUp} onChangeText={setPickUp} />
+            <TextBox label="Desription" multiline={true} numberOfLines={4} value={description} onChangeText={setDescription} />
+            <TouchableOpacity onPress={pickImage}> 
+                <Text style={styles.header}>Add Image</Text> 
+            </TouchableOpacity> 
 
-        {/* Conditionally render the image  
-        or error message */} 
-        {file ? ( 
-            // Display the selected image 
-            <View> 
-                <Image source={{ uri: file }} 
-                    style={styles.image} /> 
-            </View> 
-        ) : ( 
-            // Display an error message if there's  
-            // an error or no image selected 
-            <Text style={styles.errorText}>{error}</Text> 
-        )} 
-        
-        <TouchableOpacity style={styles.button} 
-            onPress={handleSubmit}> 
-            <Text style={styles.buttonText}> 
-                Upload Listing
-            </Text> 
-        </TouchableOpacity> 
-    </View> 
+            {/* Conditionally render the image  
+            or error message */} 
+            {file ? ( 
+                // Display the selected image 
+                <View> 
+                    <Image source={{ uri: file }} 
+                        style={styles.image} /> 
+                </View> 
+            ) : ( 
+                // Display an error message if there's  
+                // an error or no image selected 
+                <Text style={styles.errorText}>{error}</Text> 
+            )} 
+            
+            <TouchableOpacity style={styles.button} 
+                disabled={!isFormValid}
+                onPress={handleSubmit}> 
+                <Text style={styles.buttonText}> 
+                    Upload Listing
+                </Text> 
+            </TouchableOpacity> 
+
+            {Object.values(errors).map((error, index) => ( 
+                    <Text style={styles.errorText}> 
+                        {error} 
+                    </Text>
+            ))}
+        </View> 
+    </ScrollView>
   ); 
 } 
 
@@ -217,6 +270,5 @@ const styles = StyleSheet.create({
   }, 
   errorText: { 
       color: "red", 
-      marginTop: 16, 
   }, 
 });
