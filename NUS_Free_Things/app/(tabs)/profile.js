@@ -3,20 +3,27 @@ import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../../firebaseConfig.js";
 import { ScrollView } from 'react-native-gesture-handler';
 import React, {useState, useEffect} from 'react';
+import { createStackNavigator } from "@react-navigation/stack";
+import { useNavigation } from 'expo-router';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 
-const Profiles = () => {
+const Stack = createStackNavigator();
 
-    const getCurrentUserEmail = () => {
-        const currentUser = auth.currentUser;
-      
-        if (currentUser) {
-          return currentUser.email;
-        } else {
-          return null;
-        }
-    };
+const getCurrentUserEmail = () => {
+    const currentUser = auth.currentUser;
+  
+    if (currentUser) {
+      return currentUser.email;
+    } else {
+      return null;
+    }
+};
 
-    const email = getCurrentUserEmail();
+const email = getCurrentUserEmail();
+
+const Body = () => {
+
+    const navigation = useNavigation();
     const [listings, setListings] = useState([]);
 
     useEffect(() => {
@@ -38,27 +45,114 @@ const Profiles = () => {
     return (
         <ScrollView>
             <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
-                {          
-                    listings.filter(
-                        listing => listing.email === email
-                    ).map(listings => (
-                    <View key={listings.id}>
-                        <Card
-                        key={listings.id}
-                        name={listings.name}
-                        expiry={listings.expiry}
-                        pickup={listings.pickup}
-                        url={listings.imageUrl}
-                        />
-                    </View>
-                    ))
-                }
+                    {          
+                        listings.filter(
+                            listing => listing.email === email
+                        ).map(listings => (
+                            <TouchableOpacity key={listings.id}
+                                onPress={() => navigation.navigate("CardZoomIn",
+                                {
+                                    listings,
+                                }
+                            )}>
+                            <View key={listings.id}>
+                                <Card
+                                key={listings.id}
+                                name={listings.name}
+                                expiry={listings.expiry}
+                                pickup={listings.pickup}
+                                url={listings.imageUrl}
+                                />   
+                            </View>
+                        </TouchableOpacity>
+                        ))
+                    }
             </View>
         </ScrollView>
     )
 }
 
+
+const Heading = () => {
+    return(
+        <View style={{flex: 1}}>
+            <View style={{flex: 2, backgroundColor: '#8C52FF'}}>
+            </View>
+            <View style={{position: "absolute", left: 20, top: 70,}}>
+                <Image 
+                    source={require('../../assets/images/react-logo.png')}
+                    style={styles.avatar}
+                />
+                <Text style={{fontSize: 18, paddingTop: 20}}>Email: {email}</Text>
+            </View>
+            <View style={{flex: 3, borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5, justifyContent: "flex-end"}}>
+                <View style={{paddingLeft: 20, paddingBottom: 8}}>  
+                    <Text style={{fontSize: 30, fontWeight: "440"}}>Listings</Text>
+                </View>   
+            </View>           
+        </View>
+    )
+}
+
+const Main = () => {
+    return (
+        <View style={{flex: 1}}>
+            <View style={{flex: 1}}>
+                <Heading />
+            </View>
+            <View style={{flex: 2, paddingTop: 30}}>
+                <ScrollView>
+                    <Body />
+                </ScrollView>
+            </View>
+            
+        </View>
+    )
+}
+
+const Profiles = () => {
+
+    return (
+      <Stack.Navigator>
+        <Stack.Screen name="Main" component={Main} options={{ headerShown: false }}/>
+        <Stack.Screen name="CardZoomIn" component={CardZoomIn} options={{ headerShown: false }}/>
+      </Stack.Navigator>
+    )
+}
 export { Profiles };
+
+const CardZoomIn = (props) => {
+    const navigation = useNavigation();
+    const { listings } = props.route.params;
+    return (
+      <ScrollView>
+        <TouchableOpacity onPress={() => navigation.navigate("Main")}>
+          <View style={{flex: 1, paddingTop: 35, paddingBottom: 10, paddingLeft: 16}}>
+            <TabBarIcon size={35} name={"arrow-back-outline"}/>
+          </View>
+        </TouchableOpacity>
+        <View style={{flex: 8}}>
+          <View style={{alignItems: "center", paddingTop: 5, flex: 4}}>
+            <Image
+              style={{width: 420, height: 450, borderRadius: 8}}
+              source={{ uri: listings.imageUrl }}
+            />
+          </View>
+          <View style={{paddingLeft: 16, flex: 3, paddingBottom: 20, paddingTop: 20}}>
+            <Text style={{fontSize: 30, fontWeight: "bold"}}>{listings.name}</Text>
+            <Text style={{paddingTop: 30, fontSize: 25, fontWeight: "bold"}}>Details</Text>
+            <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Expires in</Text>
+            <Text style={{fontSize: 20}}>{listings.expiry}</Text>
+            <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Pick up location</Text>
+            <Text style={{fontSize: 20}}>{listings.pickup}</Text>
+            <Text style={{paddingTop: 30, fontSize: 25, fontWeight: "bold"}}>Description</Text>
+            <Text style={{paddingTop: 5, fontSize: 20}}>{listings.description}</Text>
+          </View>
+        </View>
+        <Button title="Delete" color="#F74046"/>
+      </ScrollView>
+    );
+};
 
 const PreviewImage = (props) => (
     <Image
@@ -109,6 +203,14 @@ const PreviewImage = (props) => (
       color: "#646667",
       fontStyle: "italic",
     },
+    avatar: {
+        width: 96,
+        height: 96,
+        borderRadius: 64,
+        borderWidth: 1,
+        backgroundColor: "white",
+        borderColor: "white",
+    }
   });
   
   const cardStyles = StyleSheet.create({
@@ -124,11 +226,3 @@ const PreviewImage = (props) => (
     },
   });
   
-  const Listing = () => {
-    return (  
-      <View style={{flex: 1}}>
-        <Heading />
-        <Body />
-      </View>
-    );
-  };

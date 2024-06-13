@@ -148,6 +148,7 @@ const UploadListings = () => {
             imageUrl = await uploadImage(file);
         }
         const docRef = await addDoc(collection(db, "listings"), {
+            key: name + email,
             name: name,
             expiry: expiry,
             pickup: PickUp,

@@ -28,6 +28,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name={focused ? 'search' : 'search-outline'} color={color} />
             ),
+            tabBarLabel:() => {return null},
           }}
         />
         <Tab.Screen
@@ -38,7 +39,9 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name={focused ? 'duplicate' : 'duplicate-outline'} color={color} />
             ),
+            tabBarLabel:() => {return null},
           }}
+           
         />
         <Tab.Screen
           name="profile"
@@ -48,6 +51,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
             ),
+            tabBarLabel:() => {return null},
           }}
         />
       </Tab.Navigator>

@@ -11,6 +11,18 @@ import { auth, db } from "../../firebaseConfig.js";
 
 const Stack = createStackNavigator();
 
+const getCurrentUserEmail = () => {
+  const currentUser = auth.currentUser;
+
+  if (currentUser) {
+    return currentUser.email;
+  } else {
+    return null;
+  }
+};
+
+const email = getCurrentUserEmail();
+
 const Chatroom = () => {
   return (
       <View style={{justifyContent: "center", alignItems: "center"}}>
@@ -85,8 +97,9 @@ const Body = () => {
     <ScrollView>
       <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
         {
-          
-          listings.map(listings => (
+          listings.filter(
+            listing => listing.email !== email
+          ).map(listings => (
             <TouchableOpacity key={listings.id}
                 onPress={() => navigation.navigate("CardZoomIn",
                 {
@@ -119,7 +132,7 @@ const CardZoomIn = (props) => {
     <ScrollView>
       <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
         <View style={{flex: 1, paddingTop: 35, paddingBottom: 10, paddingLeft: 16}}>
-          <TabBarIcon name={"arrow-back-outline"}/>
+          <TabBarIcon size={35} name={"arrow-back-outline"}/>
         </View>
       </TouchableOpacity>
       <View style={{flex: 8}}>
@@ -138,7 +151,6 @@ const CardZoomIn = (props) => {
           <Text style={{fontSize: 20}}>{listings.pickup}</Text>
           <Text style={{paddingTop: 30, fontSize: 25, fontWeight: "bold"}}>Description</Text>
           <Text style={{paddingTop: 5, fontSize: 20}}>{listings.description}</Text>
-          <Text>{listings.email}</Text>
         </View>
       </View>
       <Button title="Chat" onPress={() => navigation.navigate("Chats")}/>
