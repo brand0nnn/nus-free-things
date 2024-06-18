@@ -23,7 +23,7 @@ const getCurrentUserEmail = () => {
 
 const email = getCurrentUserEmail();
 
-const Chatroom = () => {
+const ChatHistory = () => {
   return (
       <View style={{justifyContent: "center", alignItems: "center"}}>
           <Text>Chatroom</Text>
@@ -54,7 +54,7 @@ const Heading = () => {
       <View style={{flex: 1}}>
         <InputWithLabel placeholder="Search" value={search} onChangeText={setSearch}/>
       </View>
-      <TouchableOpacity onPress={() => navigation.navigate("Chats")}>
+      <TouchableOpacity onPress={() => navigation.navigate("ChatHistory")}>
         <IonIcon name="chatbubble-outline" style={{fontSize: 30, paddingTop: 20}}></IonIcon>
       </TouchableOpacity>
     </View>
@@ -153,10 +153,57 @@ const CardZoomIn = (props) => {
           <Text style={{paddingTop: 5, fontSize: 20}}>{listings.description}</Text>
         </View>
       </View>
-      <Button title="Chat" onPress={() => navigation.navigate("Chats")}/>
+      <Button title="Chat" onPress={() => navigation.navigate("ListingChat", {
+        listings,
+      })}/>
     </ScrollView>
   );
 };
+
+const ListingChat = (props) => {
+  const navigation = useNavigation();
+  const { listings } = props.route.params;
+  const [message, setMessage] = useState("");
+  const [messageLog, setMessageLog] = useState("");
+
+  return (
+    <View style={{flex: 1}}>
+      <View style={{flexDirection: "row", flex: 2, borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5}}>
+        <TouchableOpacity onPress={() => navigation.navigate("CardZoomIn", {
+          listings,
+        })}>
+          <View style={{paddingTop: 57, paddingBottom: 10, paddingLeft: 16}}>
+            <TabBarIcon size={35} name={"chevron-back-outline"}/>
+          </View>
+        </TouchableOpacity>
+        <View style={{paddingTop: 40, paddingLeft: 15}}>
+          <Image
+                style={styles.avatar}
+                source={{ uri: listings.imageUrl }}
+          />
+        </View>
+        <View style={{flexDirection: "column", paddingTop: 40, paddingLeft: 16}}>
+          <Text style={styles.listingText}>{listings.name}</Text>
+          <Text style={{fontSize: 16}}>{listings.pickup}</Text>
+        </View>
+      </View>
+      <View style={{flex: 11, alignSelf: "center", justifyContent: "center"}}>
+        <ScrollView>
+            <Text style={{fontSize: 30}}>{messageLog}</Text>
+        </ScrollView>
+      </View>
+      <View style={{flex: 2, justifyContent: "flex-end"}}>
+          <InputWithLabel 
+            placeholder="Type here..." 
+            value={message} 
+            onChangeText={setMessage} 
+            onSubmitEditing={() => setMessageLog(messageLog + message + " ")}
+          />      
+        </View>
+    </View>
+  );
+
+}
 
 const PreviewImage = (props) => (
   <Image
@@ -207,6 +254,18 @@ const styles = StyleSheet.create({
     color: "#646667",
     fontStyle: "italic",
   },
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 64,
+    borderWidth: 1,
+    backgroundColor: "white",
+    borderColor: "white",
+  },
+  listingText: {
+    fontSize: 30,
+    fontWeight: "bold",
+  },
 });
 
 const cardStyles = StyleSheet.create({
@@ -253,7 +312,8 @@ export default function HomeScreen() {
   return (
       <Stack.Navigator>
         <Stack.Screen name="Listing" component={Listing} options={{ headerShown: false }}/>
-        <Stack.Screen name="Chats" component={Chatroom}/>
+        <Stack.Screen name="ChatHistory" component={ChatHistory}/>
+        <Stack.Screen name="ListingChat" component={ListingChat} options={{ headerShown: false}}/>
         <Stack.Screen name="CardZoomIn" component={CardZoomIn} options={{ headerShown: false }}/>
       </Stack.Navigator>
   );

@@ -6,6 +6,7 @@ import React, {useState, useEffect} from 'react';
 import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { SearchBar } from 'react-native-elements';
 
 const Stack = createStackNavigator();
 
