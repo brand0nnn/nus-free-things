@@ -48,7 +48,7 @@ const Body = () => {
             <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
                     {          
                         listings.filter(
-                            listing => listing.email === email
+                            listing => listing.email !== email
                         ).map(listings => (
                             <TouchableOpacity key={listings.id}
                                 onPress={() => navigation.navigate("CardZoomIn",

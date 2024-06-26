@@ -66,6 +66,38 @@ const Body = () => {
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigation.navigate("(tabs)");
+        const unsubscribeListings = onSnapshot(
+          collection(db, 'listings'), 
+          (querySnapshot) => {
+            const listingsData = querySnapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+            setListings(listingsData);
+          },
+          (error) => {
+            console.error('Error fetching listings:', error);
+            Alert.alert('Error', 'Failed to fetch listings');
+          }
+        );
+
+        // Cleanup Firestore subscription on unmount
+        return () => unsubscribeListings();
+      } else {
+        // Clear listings if user logs out
+        setListings([]);
+        navigation.navigate("SignIn");
+      }
+    });
+
+    // Cleanup authentication listener on unmount
+    return () => unsubscribeAuth();
+  }, []);
+
+  /*useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'listings'), (querySnapshot) => {
       const listingsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -79,7 +111,7 @@ const Body = () => {
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, []);
+  }, []);*/
 
   const handleSignOut = () => {
     signOut(auth)
@@ -293,7 +325,7 @@ const Listing = () => {
 export default function HomeScreen() {
   const navigation = useNavigation();
 
-  useEffect(() => {
+  /*useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is signed in
@@ -307,7 +339,7 @@ export default function HomeScreen() {
     });
 
     return () => unsubscribe(); // Cleanup subscription on unmount
-  }, [auth]);
+  }, [auth]);*/
   
   return (
       <Stack.Navigator>
