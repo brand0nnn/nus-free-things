@@ -109,11 +109,12 @@ const Heading = () => {
 const Body = () => {
   const navigation = useNavigation();
   const [listings, setListings] = useState([]);
-  const currentUser = auth.currentUser;
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
+        setCurrentUser(user);
         navigation.navigate("(tabs)");
         const unsubscribeListings = onSnapshot(
           collection(db, 'listings'), 
@@ -135,6 +136,7 @@ const Body = () => {
       } else {
         // Clear listings if user logs out
         setListings([]);
+        setCurrentUser(null);
         navigation.navigate("SignIn");
       }
     });

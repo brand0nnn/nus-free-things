@@ -11,72 +11,96 @@ import { CardZoomIn } from './index.js';
 
 const Stack = createStackNavigator();
 
-const getCurrentUserEmail = () => {
-    const currentUser = auth.currentUser;
-  
-    if (currentUser) {
-      return currentUser.email;
-    } else {
-      return null;
-    }
-};
-
 const Body = () => {
+  const navigation = useNavigation();
+  const [listings, setListings] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
-    const navigation = useNavigation();
-    const [listings, setListings] = useState([]);
-    const email = getCurrentUserEmail();
+  useEffect(() => {
+    // Fetch current user
+    const unsubscribeAuth = auth.onAuthStateChanged(user => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+    });
 
-    useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'listings'), (querySnapshot) => {
-          const listingsData = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          setListings(listingsData);
-        }, (error) => {
-          console.error('Error fetching listings:', error);
-          Alert.alert('Error', 'Failed to fetch listings');
-        });
-    
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
-      }, []);
-    
-    return (
-      <ScrollView>
-        <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
-          {          
-            listings.filter(
-                listing => listing.email === email
-            ).map(listings => (
-                <TouchableOpacity key={listings.id}
-                    onPress={() => navigation.navigate("CardZoomIn",
-                    {
-                        listings,
-                    }
-                )}>
-                <View key={listings.id}>
-                    <Card
-                    key={listings.id}
-                    name={listings.name}
-                    expiry={listings.expiry}
-                    pickup={listings.pickup}
-                    url={listings.imageUrl}
-                    />   
-                </View>
-            </TouchableOpacity>
-            ))
-          }
-        </View>
-      </ScrollView>
-    )
+    // Fetch listings
+    const unsubscribeListings = onSnapshot(collection(db, 'listings'), querySnapshot => {
+      const listingsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setListings(listingsData);
+    }, error => {
+      console.error('Error fetching listings:', error);
+      Alert.alert('Error', 'Failed to fetch listings');
+    });
+
+    // Clean up subscriptions on unmount
+    return () => {
+      unsubscribeAuth();
+      unsubscribeListings();
+    };
+  }, []);
+
+  if (!currentUser) {
+    return null; // or loading indicator while waiting for authentication
+  }
+  
+  return (
+    <ScrollView>
+      <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
+        {          
+          listings.filter(
+              listing => listing.email === currentUser.email
+          ).map(listings => (
+              <TouchableOpacity key={listings.id}
+                  onPress={() => navigation.navigate("CardZoomIn",
+                  {
+                      listings,
+                  }
+              )}>
+              <View key={listings.id}>
+                  <Card
+                  key={listings.id}
+                  name={listings.name}
+                  expiry={listings.expiry}
+                  pickup={listings.pickup}
+                  url={listings.imageUrl}
+                  />   
+              </View>
+          </TouchableOpacity>
+          ))
+        }
+      </View>
+    </ScrollView>
+  )
 }
 
 
 const Heading = () => {
-  const email = getCurrentUserEmail();  
-  
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null); // Handle case where user is not authenticated
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  if (!currentUser) {
+    return null; // or loading indicator while waiting for authentication
+  }
+
   return (
     <View style={{flex: 1}}>
         <View style={{flex: 2, backgroundColor: '#8C52FF'}}>
@@ -86,11 +110,11 @@ const Heading = () => {
                 source={require('../../assets/images/react-logo.png')}
                 style={styles.avatar}
             />
-            <Text style={{fontSize: 18, paddingTop: 20}}>Email: {email}</Text>
+            <Text style={{fontSize: 18, paddingTop: 20}}>Email: {currentUser.email}</Text>
         </View>
         <View style={{flex: 3, borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5, justifyContent: "flex-end"}}>
             <View style={{paddingLeft: 20, paddingBottom: 8}}>  
-                <Text style={{fontSize: 30, fontWeight: "440"}}>Listings</Text>
+                <Text style={{fontSize: 30, fontWeight: "440"}}>My Listings</Text>
             </View>   
         </View>           
     </View>
@@ -98,29 +122,29 @@ const Heading = () => {
 }
 
 const Main = () => {
-    return (
+  return (
+    <View style={{flex: 1}}>
         <View style={{flex: 1}}>
-            <View style={{flex: 1}}>
-                <Heading />
-            </View>
-            <View style={{flex: 2, paddingTop: 30}}>
-                <ScrollView>
-                    <Body />
-                </ScrollView>
-            </View>
-            
+            <Heading />
         </View>
-    )
+        <View style={{flex: 2, paddingTop: 30}}>
+            <ScrollView>
+                <Body />
+            </ScrollView>
+        </View>
+        
+    </View>
+  )
 }
 
 const Profiles = () => {
 
-    return (
-      <Stack.Navigator>
-        <Stack.Screen name="Main" component={Main} options={{ headerShown: false }}/>
-        <Stack.Screen name="CardZoomIn" component={CardZoomIn} options={{ headerShown: false }}/>
-      </Stack.Navigator>
-    )
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Main" component={Main} options={{ headerShown: false }}/>
+      <Stack.Screen name="CardZoomIn" component={CardZoomIn} options={{ headerShown: false }}/>
+    </Stack.Navigator>
+  )
 }
 export { Profiles };
 
