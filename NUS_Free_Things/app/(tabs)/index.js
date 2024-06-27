@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, View, Text, Button, TextInput, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { Image, StyleSheet, Platform, View, Text, Button, TextInput, ScrollView, TouchableOpacity, Alert, FlatList } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { createStackNavigator } from "@react-navigation/stack";
@@ -6,7 +6,7 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from 'expo-router';
 
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, getDocs, onSnapshot } from "firebase/firestore"; 
+import { collection, getDocs, onSnapshot, query, where, addDoc, doc, serverTimestamp, getDoc, orderBy } from "firebase/firestore"; 
 import { auth, db } from "../../firebaseConfig.js";
 
 const Stack = createStackNavigator();
@@ -24,12 +24,58 @@ const getCurrentUserEmail = () => {
 const email = getCurrentUserEmail();
 
 const ChatHistory = () => {
+  const [chatrooms, setChatrooms] = useState([]);
+  const navigation = useNavigation();
+  const currentUser = auth.currentUser;
+
+  useEffect(() => {
+    const fetchChatrooms = async () => {
+      if (currentUser) {
+        try {
+          const chatroomsRef = collection(db, 'chatrooms');
+          
+          const ownerQuery = query(chatroomsRef, where('owner', '==', currentUser.uid));
+          const buyerQuery = query(chatroomsRef, where('buyer', '==', currentUser.uid));
+          
+          const [ownerSnapshot, buyerSnapshot] = await Promise.all([getDocs(ownerQuery), getDocs(buyerQuery)]);
+          
+          const ownerChatrooms = ownerSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          const buyerChatrooms = buyerSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          
+          const allChatrooms = [...ownerChatrooms, ...buyerChatrooms];
+          setChatrooms(allChatrooms);
+          
+        } catch (error) {
+          console.error('Error fetching chatrooms:', error);
+        }
+      }
+    };
+    
+    fetchChatrooms();
+  }, [currentUser]);
+
+  const handleChatPress = (chatroom) => {
+    navigation.navigate('ListingChat', {
+      chatroomId: chatroom.id,
+      currentUser
+    });
+  };
+
   return (
-      <View style={{justifyContent: "center", alignItems: "center"}}>
-          <Text>Chatroom</Text>
-      </View>
+    <View style={{ justifyContent: "center", alignItems: "center" }}>
+      <Text>Chatroom</Text>
+      <FlatList
+        data={chatrooms}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => handleChatPress(item)}>
+            <Text>{`Chatroom for listing: ${item.listingName}`}</Text>
+          </TouchableOpacity>
+        )}
+      />
+    </View>
   );
-}
+};
 
 function InputWithLabel({placeholder, value, onChangeText, onSubmitEditing }) {
   return (
@@ -97,22 +143,6 @@ const Body = () => {
     return () => unsubscribeAuth();
   }, []);
 
-  /*useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'listings'), (querySnapshot) => {
-      const listingsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setListings(listingsData);
-    }, (error) => {
-      console.error('Error fetching listings:', error);
-      Alert.alert('Error', 'Failed to fetch listings');
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []);*/
-
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
@@ -160,6 +190,56 @@ const Body = () => {
 const CardZoomIn = (props) => {
   const navigation = useNavigation();
   const { listings } = props.route.params;
+  const currentUser = auth.currentUser;
+
+  const handleChatPress = async () => {
+    try {
+      if (currentUser) {
+        const chatroomsRef = collection(db, "chatrooms");
+        const q = query(chatroomsRef, where("listingId", "==", listings.id), where("buyer", "==", currentUser.uid), where("owner", "==", listings.ownerId));
+
+        const querySnapshot = await getDocs(q);
+        let chatroomId;
+
+        if (!querySnapshot.empty) {
+          // Chatroom already exists
+          chatroomId = querySnapshot.docs[0].id;
+        } else {
+          // Create a new chatroom
+
+          const chatroomDocRef = await addDoc(chatroomsRef, {
+            listingId: listings.id,
+            listingName: listings.name,
+            owner: listings.ownerId,
+            buyer: currentUser.uid
+            //messages: []
+          });
+
+          // Create initial "messages" subcollection
+          const messagesCollectionRef = collection(chatroomDocRef, 'messages');
+          await addDoc(messagesCollectionRef, {
+            text: "Chat started",
+            sender: "system",
+            timestamp: serverTimestamp(),
+          });
+
+          chatroomId = chatroomDocRef.id;
+        }
+
+        navigation.navigate("ListingChat", {
+          chatroomId,
+          currentUser
+        });
+      } else {
+        console.error('User not authenticated.'); // Handle error if user is not authenticated
+      }
+    } catch (error) {
+      console.error('Error querying Firestore:', error);
+      // Handle specific errors or display a generic error message
+      // You can also set state or manage UI to inform the user of the error
+    }
+  };
+
   return (
     <ScrollView>
       <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
@@ -185,25 +265,88 @@ const CardZoomIn = (props) => {
           <Text style={{paddingTop: 5, fontSize: 20}}>{listings.description}</Text>
         </View>
       </View>
-      <Button title="Chat" onPress={() => navigation.navigate("ListingChat", {
-        listings,
-      })}/>
+      {currentUser.uid !== listings.ownerId && (
+        <Button title="Chat" onPress={handleChatPress}/>
+      )}
     </ScrollView>
   );
 };
 
 const ListingChat = (props) => {
   const navigation = useNavigation();
-  const { listings } = props.route.params;
+  const { chatroomId, currentUser } = props.route.params;
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [listing, setListing] = useState(null);
   const [messageLog, setMessageLog] = useState("");
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        // Fetch messages for the chatroom and order them by timestamp
+        const messagesCollectionRef = collection(db, "chatrooms", chatroomId, "messages");
+        const unsubscribe = onSnapshot(query(messagesCollectionRef, orderBy('timestamp', 'asc')), (snapshot) => {
+          const newMessages = snapshot.docs.map(doc => doc.data());
+          setMessages(newMessages);
+        });
+
+        return unsubscribe;
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    };
+
+    const fetchListing = async () => {
+      try {
+        // Fetch listing details based on the chatroom's listingId
+        const chatroomDocRef = doc(db, 'chatrooms', chatroomId);
+        const chatroomDocSnap = await getDoc(chatroomDocRef);
+
+        if (chatroomDocSnap.exists()) {
+          const listingId = chatroomDocSnap.data().listingId;
+          const listingDocRef = doc(db, 'listings', listingId);
+          const listingDocSnap = await getDoc(listingDocRef);
+
+          if (listingDocSnap.exists()) {
+            setListing({ id: listingDocSnap.id, ...listingDocSnap.data() });
+          } else {
+            console.error('Listing not found for chatroom:', chatroomId);
+          }
+        } else {
+          console.error('Chatroom document not found:', chatroomId);
+        }
+      } catch (error) {
+        console.error('Error fetching listing:', error);
+      }
+    };
+
+    fetchMessages();
+    fetchListing();
+  }, [chatroomId]);
+
+  const handleSendMessage = async () => {
+    try {
+      // Add message to the chatroom
+      const messagesCollectionRef = collection(db, "chatrooms", chatroomId, "messages");
+      await addDoc(messagesCollectionRef, {
+        text: message,
+        sender: currentUser.email,
+        timestamp: serverTimestamp(), // Use serverTimestamp() if supported by your Firestore setup
+      });
+      setMessage("");
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
+
+  if (!listing) {
+    return <Text>Loading...</Text>; // Placeholder for loading state
+  }
 
   return (
     <View style={{flex: 1}}>
       <View style={{flexDirection: "row", flex: 2, borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5}}>
-        <TouchableOpacity onPress={() => navigation.navigate("CardZoomIn", {
-          listings,
-        })}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <View style={{paddingTop: 57, paddingBottom: 10, paddingLeft: 16}}>
             <TabBarIcon size={35} name={"chevron-back-outline"}/>
           </View>
@@ -211,17 +354,21 @@ const ListingChat = (props) => {
         <View style={{paddingTop: 40, paddingLeft: 15}}>
           <Image
                 style={styles.avatar}
-                source={{ uri: listings.imageUrl }}
+                source={{ uri: listing.imageUrl }}
           />
         </View>
         <View style={{flexDirection: "column", paddingTop: 40, paddingLeft: 16}}>
-          <Text style={styles.listingText}>{listings.name}</Text>
-          <Text style={{fontSize: 16}}>{listings.pickup}</Text>
+          <Text style={styles.listingText}>{listing.name}</Text>
+          <Text style={{fontSize: 16}}>{listing.pickup}</Text>
         </View>
       </View>
       <View style={{flex: 11, alignSelf: "center", justifyContent: "center"}}>
         <ScrollView>
-            <Text style={{fontSize: 30}}>{messageLog}</Text>
+          {messages.map((msg, index) => (
+              <Text key={index} style={{fontSize: 18}}>
+                {msg.sender}: {msg.text}
+              </Text>
+            ))}
         </ScrollView>
       </View>
       <View style={{flex: 2, justifyContent: "flex-end"}}>
@@ -229,7 +376,7 @@ const ListingChat = (props) => {
             placeholder="Type here..." 
             value={message} 
             onChangeText={setMessage} 
-            onSubmitEditing={() => setMessageLog(messageLog + message + " ")}
+            onSubmitEditing={handleSendMessage}
           />      
         </View>
     </View>

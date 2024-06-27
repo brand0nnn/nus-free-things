@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, View, Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Pressable } from 'react-native';
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db } from "../../firebaseConfig.js";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -56,6 +56,8 @@ const UploadListings = () => {
   // Function to pick an image from  
   //the device's media library 
   const navigation = useNavigation();
+
+  const currentUser = auth.currentUser;
   
   const getCurrentUserEmail = () => {
     const currentUser = auth.currentUser;
@@ -92,9 +94,9 @@ const UploadListings = () => {
         errors.description = '*Description is required';
     }
 
-    if (!file){
+    /*if (!file){
         errors.file = '*Image is required';
-    }
+    }*/
     setErrors(errors);
     setIsFormValid(Object.keys(errors).length === 0);
   };
@@ -155,7 +157,13 @@ const UploadListings = () => {
             imageUrl: imageUrl,
             description: description,
             email: email,
+            ownerId: currentUser.uid,
         });
+
+        await updateDoc(doc(db, "listings", docRef.id), {
+          id: docRef.id,
+        });
+
         console.log("Document written with ID: ", docRef.id);
     } catch (e) {
         console.error("Error adding document: ", e);
