@@ -6,7 +6,7 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from 'expo-router';
 
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, getDocs, onSnapshot, query, where, addDoc, doc, serverTimestamp, getDoc, orderBy } from "firebase/firestore"; 
+import { collection, getDocs, onSnapshot, query, where, addDoc, doc, serverTimestamp, getDoc, orderBy, deleteDoc } from "firebase/firestore"; 
 import { auth, db } from "../../firebaseConfig.js";
 import { GiftedChat } from 'react-native-gifted-chat';
 
@@ -21,8 +21,6 @@ const getCurrentUserEmail = () => {
     return null;
   }
 };
-
-const email = getCurrentUserEmail();
 
 const ChatHistory = () => {
   const [chatrooms, setChatrooms] = useState([]);
@@ -111,6 +109,7 @@ const Heading = () => {
 const Body = () => {
   const navigation = useNavigation();
   const [listings, setListings] = useState([]);
+  const currentUser = auth.currentUser;
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -161,7 +160,7 @@ const Body = () => {
       <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
         {
           listings.filter(
-            listing => listing.email !== email
+            listing => listing.email !== currentUser.email
           ).map(listings => (
             <TouchableOpacity key={listings.id}
                 onPress={() => navigation.navigate("CardZoomIn",
@@ -241,9 +240,37 @@ const CardZoomIn = (props) => {
     }
   };
 
+  const handleDeletePress = async () => {
+    try {
+      // Step 1: Delete associated chatrooms
+      const chatroomsRef = collection(db, "chatrooms");
+      const q = query(chatroomsRef, where("listingId", "==", listings.id));
+  
+      const querySnapshot = await getDocs(q);
+      const deleteOperations = [];
+  
+      querySnapshot.forEach((doc) => {
+        deleteOperations.push(deleteDoc(doc.ref));
+      });
+  
+      // Step 2: Wait for all chatrooms to be deleted
+      await Promise.all(deleteOperations);
+  
+      // Step 3: Delete the listing itself
+      await deleteDoc(doc(db, "listings", listings.id));
+  
+      // Success message and navigation
+      Alert.alert('Listing and associated chatrooms deleted successfully');
+      navigation.navigate("Listing");
+    } catch (error) {
+      console.error('Error deleting listing and chatrooms:', error);
+      Alert.alert('Error', 'Failed to delete listing and associated chatrooms');
+    }
+  };
+
   return (
     <ScrollView>
-      <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
         <View style={{flex: 1, paddingTop: 35, paddingBottom: 10, paddingLeft: 16}}>
           <TabBarIcon size={35} name={"arrow-back-outline"}/>
         </View>
@@ -266,12 +293,15 @@ const CardZoomIn = (props) => {
           <Text style={{paddingTop: 5, fontSize: 20}}>{listings.description}</Text>
         </View>
       </View>
-      {currentUser.uid !== listings.ownerId && (
-        <Button title="Chat" onPress={handleChatPress}/>
+      {currentUser.uid === listings.ownerId ? (
+        <Button title="Delete" onPress={handleDeletePress} color="#F74046"/>
+      ) : (
+        <Button title="Chat" onPress={handleChatPress} />
       )}
     </ScrollView>
   );
 };
+export { CardZoomIn };
 
 const ListingChat = (props) => {
   const navigation = useNavigation();

@@ -7,6 +7,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { SearchBar } from 'react-native-elements';
+import { CardZoomIn } from './index.js';
 
 const Stack = createStackNavigator();
 
@@ -20,12 +21,11 @@ const getCurrentUserEmail = () => {
     }
 };
 
-const email = getCurrentUserEmail();
-
 const Body = () => {
 
     const navigation = useNavigation();
     const [listings, setListings] = useState([]);
+    const email = getCurrentUserEmail();
 
     useEffect(() => {
         const unsubscribe = onSnapshot(collection(db, 'listings'), (querySnapshot) => {
@@ -44,55 +44,57 @@ const Body = () => {
       }, []);
     
     return (
-        <ScrollView>
-            <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
-                    {          
-                        listings.filter(
-                            listing => listing.email !== email
-                        ).map(listings => (
-                            <TouchableOpacity key={listings.id}
-                                onPress={() => navigation.navigate("CardZoomIn",
-                                {
-                                    listings,
-                                }
-                            )}>
-                            <View key={listings.id}>
-                                <Card
-                                key={listings.id}
-                                name={listings.name}
-                                expiry={listings.expiry}
-                                pickup={listings.pickup}
-                                url={listings.imageUrl}
-                                />   
-                            </View>
-                        </TouchableOpacity>
-                        ))
+      <ScrollView>
+        <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
+          {          
+            listings.filter(
+                listing => listing.email === email
+            ).map(listings => (
+                <TouchableOpacity key={listings.id}
+                    onPress={() => navigation.navigate("CardZoomIn",
+                    {
+                        listings,
                     }
-            </View>
-        </ScrollView>
+                )}>
+                <View key={listings.id}>
+                    <Card
+                    key={listings.id}
+                    name={listings.name}
+                    expiry={listings.expiry}
+                    pickup={listings.pickup}
+                    url={listings.imageUrl}
+                    />   
+                </View>
+            </TouchableOpacity>
+            ))
+          }
+        </View>
+      </ScrollView>
     )
 }
 
 
 const Heading = () => {
-    return(
-        <View style={{flex: 1}}>
-            <View style={{flex: 2, backgroundColor: '#8C52FF'}}>
-            </View>
-            <View style={{position: "absolute", left: 20, top: 70,}}>
-                <Image 
-                    source={require('../../assets/images/react-logo.png')}
-                    style={styles.avatar}
-                />
-                <Text style={{fontSize: 18, paddingTop: 20}}>Email: {email}</Text>
-            </View>
-            <View style={{flex: 3, borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5, justifyContent: "flex-end"}}>
-                <View style={{paddingLeft: 20, paddingBottom: 8}}>  
-                    <Text style={{fontSize: 30, fontWeight: "440"}}>Listings</Text>
-                </View>   
-            </View>           
+  const email = getCurrentUserEmail();  
+  
+  return (
+    <View style={{flex: 1}}>
+        <View style={{flex: 2, backgroundColor: '#8C52FF'}}>
         </View>
-    )
+        <View style={{position: "absolute", left: 20, top: 70,}}>
+            <Image 
+                source={require('../../assets/images/react-logo.png')}
+                style={styles.avatar}
+            />
+            <Text style={{fontSize: 18, paddingTop: 20}}>Email: {email}</Text>
+        </View>
+        <View style={{flex: 3, borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5, justifyContent: "flex-end"}}>
+            <View style={{paddingLeft: 20, paddingBottom: 8}}>  
+                <Text style={{fontSize: 30, fontWeight: "440"}}>Listings</Text>
+            </View>   
+        </View>           
+    </View>
+  )
 }
 
 const Main = () => {
@@ -122,7 +124,7 @@ const Profiles = () => {
 }
 export { Profiles };
 
-const CardZoomIn = (props) => {
+/*const CardZoomIn = (props) => {
     const navigation = useNavigation();
     const { listings } = props.route.params;
     return (
@@ -153,7 +155,7 @@ const CardZoomIn = (props) => {
         <Button title="Delete" color="#F74046"/>
       </ScrollView>
     );
-};
+};*/
 
 const PreviewImage = (props) => (
     <Image
