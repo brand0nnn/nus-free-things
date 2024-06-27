@@ -8,6 +8,7 @@ import { useNavigation } from 'expo-router';
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, getDocs, onSnapshot, query, where, addDoc, doc, serverTimestamp, getDoc, orderBy } from "firebase/firestore"; 
 import { auth, db } from "../../firebaseConfig.js";
+import { GiftedChat } from 'react-native-gifted-chat';
 
 const Stack = createStackNavigator();
 
@@ -275,18 +276,26 @@ const CardZoomIn = (props) => {
 const ListingChat = (props) => {
   const navigation = useNavigation();
   const { chatroomId, currentUserEmail } = props.route.params;
-  const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [listing, setListing] = useState(null);
-  const [messageLog, setMessageLog] = useState("");
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        // Fetch messages for the chatroom and order them by timestamp
         const messagesCollectionRef = collection(db, "chatrooms", chatroomId, "messages");
-        const unsubscribe = onSnapshot(query(messagesCollectionRef, orderBy('timestamp', 'asc')), (snapshot) => {
-          const newMessages = snapshot.docs.map(doc => doc.data());
+        const unsubscribe = onSnapshot(query(messagesCollectionRef, orderBy('timestamp', 'desc')), (snapshot) => {
+          const newMessages = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              _id: doc.id,
+              text: data.text,
+              createdAt: data.timestamp ? data.timestamp.toDate() : new Date(),
+              user: {
+                _id: data.sender === currentUserEmail ? 1 : 2,
+                name: data.sender,
+              },
+            };
+          });
           setMessages(newMessages);
         });
 
@@ -298,7 +307,6 @@ const ListingChat = (props) => {
 
     const fetchListing = async () => {
       try {
-        // Fetch listing details based on the chatroom's listingId
         const chatroomDocRef = doc(db, 'chatrooms', chatroomId);
         const chatroomDocSnap = await getDoc(chatroomDocRef);
 
@@ -322,66 +330,52 @@ const ListingChat = (props) => {
 
     fetchMessages();
     fetchListing();
-  }, [chatroomId]);
+  }, [chatroomId, currentUserEmail]);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (newMessages) => {
+    const message = newMessages[0];
     try {
-      // Add message to the chatroom
       const messagesCollectionRef = collection(db, "chatrooms", chatroomId, "messages");
       await addDoc(messagesCollectionRef, {
-        text: message,
+        text: message.text,
         sender: currentUserEmail,
-        timestamp: serverTimestamp(), // Use serverTimestamp() if supported by your Firestore setup
+        timestamp: serverTimestamp(),
       });
-      setMessage("");
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
 
   if (!listing) {
-    return <Text>Loading...</Text>; // Placeholder for loading state
+    return <Text>Loading...</Text>;
   }
 
   return (
-    <View style={{flex: 1}}>
-      <View style={{flexDirection: "row", flex: 2, borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5}}>
+    <View style={{ flex: 1 }}>
+      <View style={{ flexDirection: "row", borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5 }}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <View style={{paddingTop: 57, paddingBottom: 10, paddingLeft: 16}}>
-            <TabBarIcon size={35} name={"chevron-back-outline"}/>
+          <View style={{ paddingTop: 57, paddingBottom: 10, paddingLeft: 16 }}>
+            <TabBarIcon size={35} name={"chevron-back-outline"} />
           </View>
         </TouchableOpacity>
-        <View style={{paddingTop: 40, paddingLeft: 15}}>
+        <View style={{ paddingTop: 40, paddingLeft: 15 }}>
           <Image
-                style={styles.avatar}
-                source={{ uri: listing.imageUrl }}
+            style={styles.avatar}
+            source={{ uri: listing.imageUrl }}
           />
         </View>
-        <View style={{flexDirection: "column", paddingTop: 40, paddingLeft: 16}}>
+        <View style={{ flexDirection: "column", paddingTop: 40, paddingLeft: 16 }}>
           <Text style={styles.listingText}>{listing.name}</Text>
-          <Text style={{fontSize: 16}}>{listing.pickup}</Text>
+          <Text style={{ fontSize: 16 }}>{listing.pickup}</Text>
         </View>
       </View>
-      <View style={{flex: 11, alignSelf: "center", justifyContent: "center"}}>
-        <ScrollView>
-          {messages.map((msg, index) => (
-              <Text key={index} style={{fontSize: 18}}>
-                {msg.sender}: {msg.text}
-              </Text>
-            ))}
-        </ScrollView>
-      </View>
-      <View style={{flex: 2, justifyContent: "flex-end"}}>
-          <InputWithLabel 
-            placeholder="Type here..." 
-            value={message} 
-            onChangeText={setMessage} 
-            onSubmitEditing={handleSendMessage}
-          />      
-        </View>
+      <GiftedChat
+        messages={messages}
+        onSend={handleSendMessage}
+        user={{ _id: 1, name: currentUserEmail }}
+      />
     </View>
   );
-
 }
 
 const PreviewImage = (props) => (
