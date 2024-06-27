@@ -206,7 +206,7 @@ const UploadListings = () => {
             </TouchableOpacity> 
 
             {Object.values(errors).map((error, index) => ( 
-                    <Text style={styles.errorText}> 
+                    <Text key={index} style={styles.errorText}> 
                         {error} 
                     </Text>
             ))}

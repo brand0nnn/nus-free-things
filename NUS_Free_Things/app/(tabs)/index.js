@@ -57,7 +57,7 @@ const ChatHistory = () => {
   const handleChatPress = (chatroom) => {
     navigation.navigate('ListingChat', {
       chatroomId: chatroom.id,
-      currentUser
+      currentUserEmail: currentUser.email
     });
   };
 
@@ -228,7 +228,7 @@ const CardZoomIn = (props) => {
 
         navigation.navigate("ListingChat", {
           chatroomId,
-          currentUser
+          currentUserEmail: currentUser.email
         });
       } else {
         console.error('User not authenticated.'); // Handle error if user is not authenticated
@@ -274,7 +274,7 @@ const CardZoomIn = (props) => {
 
 const ListingChat = (props) => {
   const navigation = useNavigation();
-  const { chatroomId, currentUser } = props.route.params;
+  const { chatroomId, currentUserEmail } = props.route.params;
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [listing, setListing] = useState(null);
@@ -330,7 +330,7 @@ const ListingChat = (props) => {
       const messagesCollectionRef = collection(db, "chatrooms", chatroomId, "messages");
       await addDoc(messagesCollectionRef, {
         text: message,
-        sender: currentUser.email,
+        sender: currentUserEmail,
         timestamp: serverTimestamp(), // Use serverTimestamp() if supported by your Firestore setup
       });
       setMessage("");
