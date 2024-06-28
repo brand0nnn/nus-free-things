@@ -5,22 +5,13 @@ import { createStackNavigator } from "@react-navigation/stack";
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from 'expo-router';
 
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, onSnapshot, query, where, addDoc, doc, serverTimestamp, getDoc, orderBy, deleteDoc } from "firebase/firestore"; 
 import { auth, db } from "../../firebaseConfig.js";
 import { GiftedChat } from 'react-native-gifted-chat';
+import { TouchableHighlight } from 'react-native-gesture-handler';
 
 const Stack = createStackNavigator();
-
-const getCurrentUserEmail = () => {
-  const currentUser = auth.currentUser;
-
-  if (currentUser) {
-    return currentUser.email;
-  } else {
-    return null;
-  }
-};
 
 const ChatHistory = () => {
   const [chatrooms, setChatrooms] = useState([]);
@@ -61,20 +52,44 @@ const ChatHistory = () => {
   };
 
   return (
-    <View style={{ justifyContent: "center", alignItems: "center" }}>
-      <Text>Chatroom</Text>
-      <FlatList
-        data={chatrooms}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleChatPress(item)}>
-            <Text>{`Chatroom for listing: ${item.listingName}`}</Text>
+    <View style={{flex: 1}}>
+        <View style={{flex: 1, borderBottomColor: "#B2B8BB", borderBottomWidth: 0.5, justifyContent: "flex-end"}}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <View style={{paddingLeft: 16}}>
+              <TabBarIcon size={35} name={"close-outline"} />
+            </View>
           </TouchableOpacity>
-        )}
-      />
+          <View style={{alignContent: "center", justifyContent: "center"}}> 
+            <Text style={{fontSize: 30, paddingLeft: 16, fontWeight: "bold"}}>All Chats</Text>
+          </View>
+        </View>
+      <View style={{flex: 7}}>
+        <FlatList
+          nestedScrollEnabled
+          data={chatrooms}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableHighlight activeOpacity={0.6} underlayColor="#DDDDDD" onPress={() => handleChatPress(item)}>
+              <IndividualChat chatroom={item} />
+            </TouchableHighlight>
+          )}
+        />
+      </View>
     </View>
   );
 };
+
+const IndividualChat = ({chatroom}) => {
+
+  return (
+    <View style={{height: 72}}>
+      <View style={{alignSelf: "center"}}>
+        <Text style={{fontSize: 30}}>{chatroom.listingName}</Text>
+      </View>
+    </View>
+  );
+}
+
 
 function InputWithLabel({placeholder, value, onChangeText, onSubmitEditing }) {
   return (
@@ -110,7 +125,7 @@ const Body = () => {
   const navigation = useNavigation();
   const [listings, setListings] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-
+  
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -509,7 +524,7 @@ export default function HomeScreen() {
   return (
       <Stack.Navigator>
         <Stack.Screen name="Listing" component={Listing} options={{ headerShown: false }}/>
-        <Stack.Screen name="ChatHistory" component={ChatHistory}/>
+        <Stack.Screen name="ChatHistory" component={ChatHistory} options={{ headerShown: false}}/>
         <Stack.Screen name="ListingChat" component={ListingChat} options={{ headerShown: false}}/>
         <Stack.Screen name="CardZoomIn" component={CardZoomIn} options={{ headerShown: false }}/>
       </Stack.Navigator>
