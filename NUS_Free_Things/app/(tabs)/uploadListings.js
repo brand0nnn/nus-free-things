@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { Button, View, Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, Alert, SafeAreaView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Pressable } from 'react-native';
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
@@ -9,6 +9,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from 'expo-router';
 import { auth } from "../../firebaseConfig.js";
 import { ScrollView } from 'react-native-gesture-handler';
+import OneMapXYZMap from './OneMap.js';
 
 function InputWithLabel({ label, placeholder, value, onChangeText }) {
     return (
