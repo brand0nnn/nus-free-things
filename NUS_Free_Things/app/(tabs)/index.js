@@ -145,18 +145,6 @@ const Body = () => {
     return () => unsubscribeAuth();
   }, []);
 
-  const handleSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        // Sign-out successful
-        // onAuthStateChanged will handle navigation
-      })
-      .catch((error) => {
-        // An error happened during sign-out
-        Alert.alert('Sign Out Error', error.message);
-      });
-  };
-
   return (
     <ScrollView>
       <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
@@ -180,9 +168,6 @@ const Body = () => {
             </TouchableOpacity>
           ))
         }
-      </View>
-      <View style={{paddingTop: 20}}>
-        <Button title="LogOut" onPress={handleSignOut}/>
       </View>
     </ScrollView>
   );
@@ -387,24 +372,24 @@ const ListingChat = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flexDirection: "row", borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5 }}>
+      <View style={{ flexDirection: "row", borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5, flex: 1}}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <View style={{ paddingTop: 57, paddingBottom: 10, paddingLeft: 16 }}>
+          <View style={{ paddingTop: 70, paddingBottom: 10, paddingLeft: 16 }}>
             <TabBarIcon size={35} name={"chevron-back-outline"} />
           </View>
         </TouchableOpacity>
-        <View style={{ paddingTop: 40, paddingLeft: 15 }}>
+        <View style={{ paddingTop: 50, paddingLeft: 15 }}>
           <Image
             style={styles.avatar}
             source={{ uri: listing.imageUrl }}
           />
         </View>
-        <View style={{ flexDirection: "column", paddingTop: 40, paddingLeft: 16 }}>
+        <View style={{ flexDirection: "column", paddingTop: 50, paddingLeft: 16 }}>
           <Text style={styles.listingText}>{listing.name}</Text>
           <Text style={{ fontSize: 16, color: '#888888' }}>{currentUserEmail === listing.email ? 'You are the owner' : listing.email}</Text>
         </View>
       </View>
-      <View style={{ backgroundColor: '#FFFFFF', flex: 1 }}>
+      <View style={{ backgroundColor: '#FFFFFF', flex: 6 }}>
         <GiftedChat
           messages={messages}
           onSend={handleSendMessage}

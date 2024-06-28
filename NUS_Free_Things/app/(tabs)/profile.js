@@ -5,9 +5,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 import React, {useState, useEffect} from 'react';
 import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from 'expo-router';
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { SearchBar } from 'react-native-elements';
 import { CardZoomIn } from './index.js';
+import UploadListings from './uploadListings.js';
+import IonIcon from 'react-native-vector-icons/Ionicons';
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 const Stack = createStackNavigator();
 
@@ -82,6 +83,7 @@ const Body = () => {
 
 const Heading = () => {
   const [currentUser, setCurrentUser] = useState(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
@@ -101,6 +103,18 @@ const Heading = () => {
     return null; // or loading indicator while waiting for authentication
   }
 
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful
+        // onAuthStateChanged will handle navigation
+      })
+      .catch((error) => {
+        // An error happened during sign-out
+        Alert.alert('Sign Out Error', error.message);
+      });
+  };
+
   return (
     <View style={{flex: 1}}>
         <View style={{flex: 2, backgroundColor: '#8C52FF'}}>
@@ -110,11 +124,21 @@ const Heading = () => {
                 source={require('../../assets/images/react-logo.png')}
                 style={styles.avatar}
             />
-            <Text style={{fontSize: 18, paddingTop: 20}}>Email: {currentUser.email}</Text>
+            <View style={{paddingTop: 20}}>
+              <Text style={{fontSize: 18}}>Email: {currentUser.email}</Text>
+            </View>
         </View>
         <View style={{flex: 3, borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5, justifyContent: "flex-end"}}>
-            <View style={{paddingLeft: 20, paddingBottom: 8}}>  
-                <Text style={{fontSize: 30, fontWeight: "440"}}>My Listings</Text>
+            <View style={{paddingLeft: 20, paddingBottom: 8, flexDirection: "row", justifyContent: "space-between"}}>  
+                <Text style={{fontSize: 30, fontWeight: "440", paddingTop: 10}}>My Listings</Text>
+                <View style={{flexDirection: "row", paddingTop: 10, paddingEnd: 10}}>
+                  <TouchableOpacity onPress={() => navigation.navigate("UploadListings")}>
+                      <IonIcon name="duplicate-outline" style={{fontSize: 35, paddingEnd: 10}}></IonIcon>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleSignOut}>
+                    <IonIcon name="log-out-outline" style={{fontSize: 35}}></IonIcon>
+                  </TouchableOpacity>           
+                </View>
             </View>   
         </View>           
     </View>
@@ -142,6 +166,7 @@ const Profiles = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Main" component={Main} options={{ headerShown: false }}/>
+      <Stack.Screen name="UploadListings" component={UploadListings} options={{ headerShown: false }}/>
       <Stack.Screen name="CardZoomIn" component={CardZoomIn} options={{ headerShown: false }}/>
     </Stack.Navigator>
   )

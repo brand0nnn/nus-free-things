@@ -6,8 +6,8 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Explore from './explore.js';
 import Index from './index.js';
-import UploadListings from './uploadListings.js';
 import { Profiles } from './profile.js';
+import OneMap from './OneMap.js';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,16 +32,15 @@ export default function TabLayout() {
           }}
         />
         <Tab.Screen
-          name="uploadListings"
-          component={UploadListings}
+          name="OneMap"
+          component={OneMap}
           options={{
-            title: 'Upload Listings',
+            title: 'OneMap',
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name={focused ? 'duplicate' : 'duplicate-outline'} color={color} />
+              <TabBarIcon name={focused ? 'map' : 'map-outline'} color={color} />
             ),
             tabBarLabel:() => {return null},
           }}
-           
         />
         <Tab.Screen
           name="profile"
