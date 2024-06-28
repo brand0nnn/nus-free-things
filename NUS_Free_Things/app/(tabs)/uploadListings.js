@@ -10,6 +10,8 @@ import { useNavigation } from 'expo-router';
 import { auth } from "../../firebaseConfig.js";
 import { ScrollView } from 'react-native-gesture-handler';
 import OneMapXYZMap from './OneMap.js';
+import { MaterialIcons } from '@expo/vector-icons';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 
 function InputWithLabel({ label, placeholder, value, onChangeText }) {
     return (
@@ -175,43 +177,118 @@ const UploadListings = () => {
 
   return ( 
     <ScrollView>
-        <View style={styles.container}> 
-            <InputWithLabel label="Name" placeholder="Name of item" value={name} onChangeText={setName} />
-            <InputWithLabel label="Expiry" placeholder="Expiry date" value={expiry} onChangeText={setExpiry} />
-            <InputWithLabel label="Location" placeholder="Pick up location" value={PickUp} onChangeText={setPickUp} />
-            <TextBox label="Desription" multiline={true} numberOfLines={4} value={description} onChangeText={setDescription} />
-            <TouchableOpacity onPress={pickImage}> 
-                <Text style={styles.header}>Add Image</Text> 
-            </TouchableOpacity> 
+      <View style={{flexDirection: "row", paddingTop: 21, paddingHorizontal: 10, backgroundColor: '#8C52FF'}}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <View style={{flex: 1, paddingTop: 35, paddingBottom: 10, paddingLeft: 10}}>
+            <TabBarIcon size={35} name={"arrow-back-outline"}/>
+          </View>
+        </TouchableOpacity>
+        <View style={{paddingLeft: 103, paddingTop: 40}}>
+          <Text style={{textAlign:'center', fontWeight:'700', fontSize: 22, color: '#FFFFFF'}}>Upload</Text>
+        </View>
+      </View>
+      <View style={styles.container}> 
+        <View style={{ padding: 20, justifyContent: "center", alignItems: "center", flex: 8 }}>  
 
-            {/* Conditionally render the image  
-            or error message */} 
+          {/* Image Placeholder */}
+          <View style={styles.imagePlaceholder}>
             {file ? ( 
-                // Display the selected image 
-                <View> 
-                    <Image source={{ uri: file }} 
-                        style={styles.image} /> 
-                </View> 
+              // Display the selected image 
+              <Image source={{ uri: file }} style={styles.image} /> 
             ) : ( 
-                // Display an error message if there's  
-                // an error or no image selected 
-                <Text style={styles.errorText}>{error}</Text> 
+              // Display a default placeholder
+              <Text style={styles.placeholderText}>No Image Selected</Text>
             )} 
-            
-            <TouchableOpacity style={styles.button} 
-                disabled={!isFormValid}
-                onPress={handleSubmit}> 
-                <Text style={styles.buttonText}> 
-                    Upload Listing
-                </Text> 
-            </TouchableOpacity> 
+          </View>
 
-            {Object.values(errors).map((error, index) => ( 
-                    <Text key={index} style={styles.errorText}> 
-                        {error} 
-                    </Text>
-            ))}
-        </View> 
+          <TouchableOpacity onPress={pickImage} style={{padding: 5, borderRadius: 10, marginBottom: 10, width: 130, backgroundColor: '#8C52FF'}}> 
+            <Text style={{textAlign:'center', fontWeight:'700', fontSize: 16, color: '#FFFFFF'}}>Edit Image</Text> 
+          </TouchableOpacity> 
+
+          <View style={{
+              flexDirection:'row', 
+              borderBottomColor:'#ccc', 
+              borderBottomWidth: 1, 
+              paddingBottom: 8, 
+              paddingTop: 20,
+              marginBottom: 25, 
+            }}>
+              <MaterialIcons name='drive-file-rename-outline' size={20} color="#666" style={{marginRight:5}} />
+              <TextInput 
+                placeholder='Enter name of item'
+                style={{flex: 1, paddingVertical: 0}}
+                value={name}
+                onChangeText={setName}
+              />
+          </View>
+          <View style={{
+              flexDirection:'row', 
+              borderBottomColor:'#ccc', 
+              borderBottomWidth: 1, 
+              paddingBottom: 8, 
+              marginBottom: 25, 
+            }}>
+              <MaterialIcons name='calendar-month' size={20} color="#666" style={{marginRight:5}} />
+              <TextInput 
+                placeholder='Enter expiry date (if any)'
+                style={{flex: 1, paddingVertical: 0}}
+                value={expiry}
+                onChangeText={setExpiry}
+              />
+          </View>
+          <View style={{
+              flexDirection:'row', 
+              borderBottomColor:'#ccc', 
+              borderBottomWidth: 1, 
+              paddingBottom: 8, 
+              marginBottom: 25, 
+            }}>
+              <MaterialIcons name='location-pin' size={20} color="#666" style={{marginRight:5}} />
+              <TextInput 
+                placeholder='Enter pick up location'
+                style={{flex: 1, paddingVertical: 0}}
+                value={PickUp}
+                onChangeText={setPickUp}
+              />
+          </View>
+          <View style={{
+              flexDirection:'row', 
+              borderBottomColor:'#ccc', 
+              borderBottomWidth: 1, 
+              paddingBottom: 8, 
+              marginBottom: 25, 
+            }}>
+              <MaterialIcons name='description' size={20} color="#666" style={{marginRight:5}} />
+              <TextInput 
+                placeholder='Enter description'
+                style={{flex: 1, paddingVertical: 0}}
+                value={description}
+                onChangeText={setDescription}
+              />
+          </View>
+        </View>
+
+        <TouchableOpacity 
+          disabled={!isFormValid}
+          onPress={handleSubmit}
+          style={[
+            {
+              padding: 20, 
+              borderRadius: 10, 
+              marginBottom: 30, 
+              width: 300,
+            },
+            isFormValid ? { backgroundColor: '#8C52FF' } : { backgroundColor: '#ccc' }
+          ]}>
+            <Text style={{textAlign:'center', fontWeight:'700', fontSize: 16, color: '#FFFFFF'}}>Upload Listing</Text>
+        </TouchableOpacity>
+
+        {Object.values(errors).map((error, index) => ( 
+                <Text key={index} style={styles.errorText}> 
+                    {error} 
+                </Text>
+        ))}
+      </View> 
     </ScrollView>
   ); 
 } 
@@ -244,7 +321,7 @@ const styles = StyleSheet.create({
       padding: 16, 
   }, 
   header: { 
-      fontSize: 20, 
+      fontSize: 15, 
       marginBottom: 16, 
       color: "blue"
   }, 
@@ -274,11 +351,23 @@ const styles = StyleSheet.create({
       elevation: 5,
   }, 
   image: { 
-      width: 240, 
-      height: 240, 
+      width: 150, 
+      height: 150, 
       borderRadius: 8,
   }, 
   errorText: { 
       color: "red", 
   }, 
+  imagePlaceholder: {
+    width: 150,
+    height: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e0e0e0',
+    marginVertical: 20,
+  },
+  placeholderText: {
+    color: '#888',
+    fontSize: 16,
+  },
 });

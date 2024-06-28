@@ -110,7 +110,7 @@ const Heading = () => {
   const navigation = useNavigation();
 
   return (
-    <View style={{flexDirection: "row", paddingTop: 25, paddingHorizontal: 10}}>
+    <View style={{flexDirection: "row", paddingTop: 25, paddingHorizontal: 10, backgroundColor: '#8C52FF'}}>
       <View style={{flex: 1}}>
         <InputWithLabel placeholder="Search" value={search} onChangeText={setSearch}/>
       </View>

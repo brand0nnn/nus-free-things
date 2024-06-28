@@ -132,7 +132,7 @@ const Heading = () => {
             <View style={{paddingLeft: 20, paddingBottom: 8, flexDirection: "row", justifyContent: "space-between"}}>  
                 <Text style={{fontSize: 30, fontWeight: "440", paddingTop: 10}}>My Listings</Text>
                 <View style={{flexDirection: "row", paddingTop: 10, paddingEnd: 10}}>
-                  <TouchableOpacity onPress={() => navigation.navigate("UploadListings")}>
+                  <TouchableOpacity onPress={() => navigation.navigate("UploadListingsScreen")}>
                       <IonIcon name="duplicate-outline" style={{fontSize: 35, paddingEnd: 10}}></IonIcon>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={handleSignOut}>
@@ -166,7 +166,7 @@ const Profiles = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Main" component={Main} options={{ headerShown: false }}/>
-      <Stack.Screen name="UploadListings" component={UploadListings} options={{ headerShown: false }}/>
+      <Stack.Screen name="UploadListingsScreen" component={UploadListings} options={{ headerShown: false }}/>
       <Stack.Screen name="CardZoomIn" component={CardZoomIn} options={{ headerShown: false }}/>
     </Stack.Navigator>
   )
