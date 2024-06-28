@@ -192,7 +192,15 @@ const Body = () => {
 const CardZoomIn = (props) => {
   const navigation = useNavigation();
   const { listings } = props.route.params;
-  const currentUser = auth.currentUser;
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      setCurrentUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleChatPress = async () => {
     try {
@@ -216,15 +224,6 @@ const CardZoomIn = (props) => {
             buyer: currentUser.uid
             //messages: []
           });
-
-          // Create initial "messages" subcollection
-          const messagesCollectionRef = collection(chatroomDocRef, 'messages');
-          await addDoc(messagesCollectionRef, {
-            text: "Chat started",
-            sender: "system",
-            timestamp: serverTimestamp(),
-          });
-
           chatroomId = chatroomDocRef.id;
         }
 
@@ -269,6 +268,10 @@ const CardZoomIn = (props) => {
       Alert.alert('Error', 'Failed to delete listing and associated chatrooms');
     }
   };
+
+  if (!currentUser) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <ScrollView>
@@ -323,7 +326,7 @@ const ListingChat = (props) => {
               text: data.text,
               createdAt: data.timestamp ? data.timestamp.toDate() : new Date(),
               user: {
-                _id: data.sender === currentUserEmail ? 1 : 2,
+                _id: data.sender === currentUserEmail ? currentUserEmail : 'other-user-id',
                 name: data.sender,
               },
             };
@@ -398,14 +401,18 @@ const ListingChat = (props) => {
         </View>
         <View style={{ flexDirection: "column", paddingTop: 40, paddingLeft: 16 }}>
           <Text style={styles.listingText}>{listing.name}</Text>
-          <Text style={{ fontSize: 16 }}>{listing.pickup}</Text>
+          <Text style={{ fontSize: 16, color: '#888888' }}>{currentUserEmail === listing.email ? 'You are the owner' : listing.email}</Text>
         </View>
       </View>
-      <GiftedChat
-        messages={messages}
-        onSend={handleSendMessage}
-        user={{ _id: 1, name: currentUserEmail }}
-      />
+      <View style={{ backgroundColor: '#FFFFFF', flex: 1 }}>
+        <GiftedChat
+          messages={messages}
+          onSend={handleSendMessage}
+          user={{ _id: currentUserEmail, name: currentUserEmail }}
+          alwaysShowSend
+          scrollToBottom
+        />
+      </View>
     </View>
   );
 }
