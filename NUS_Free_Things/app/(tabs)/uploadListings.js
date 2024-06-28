@@ -11,6 +11,7 @@ import { auth } from "../../firebaseConfig.js";
 import { ScrollView } from 'react-native-gesture-handler';
 import OneMapXYZMap from './OneMap.js';
 import { MaterialIcons } from '@expo/vector-icons';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 
 function InputWithLabel({ label, placeholder, value, onChangeText }) {
     return (
@@ -176,37 +177,40 @@ const UploadListings = () => {
 
   return ( 
     <ScrollView>
+      <View style={{flexDirection: "row", paddingTop: 21, paddingHorizontal: 10, backgroundColor: '#8C52FF'}}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <View style={{flex: 1, paddingTop: 35, paddingBottom: 10, paddingLeft: 10}}>
+            <TabBarIcon size={35} name={"arrow-back-outline"}/>
+          </View>
+        </TouchableOpacity>
+        <View style={{paddingLeft: 103, paddingTop: 40}}>
+          <Text style={{textAlign:'center', fontWeight:'700', fontSize: 22, color: '#FFFFFF'}}>Upload</Text>
+        </View>
+      </View>
       <View style={styles.container}> 
         <View style={{ padding: 20, justifyContent: "center", alignItems: "center", flex: 8 }}>  
-          
-          <View style={{paddingBottom: 10, alignSelf: 'flex-start', paddingTop: 40}}>
-            <Text style={{fontSize: 24, marginBottom: 20, fontWeight: 'bold'}}>Enter listing details</Text>
+
+          {/* Image Placeholder */}
+          <View style={styles.imagePlaceholder}>
+            {file ? ( 
+              // Display the selected image 
+              <Image source={{ uri: file }} style={styles.image} /> 
+            ) : ( 
+              // Display a default placeholder
+              <Text style={styles.placeholderText}>No Image Selected</Text>
+            )} 
           </View>
 
-          <TouchableOpacity onPress={pickImage}> 
-            <Text style={styles.header}>Add Image</Text> 
+          <TouchableOpacity onPress={pickImage} style={{padding: 5, borderRadius: 10, marginBottom: 10, width: 130, backgroundColor: '#8C52FF'}}> 
+            <Text style={{textAlign:'center', fontWeight:'700', fontSize: 16, color: '#FFFFFF'}}>Edit Image</Text> 
           </TouchableOpacity> 
-
-          {/* Conditionally render the image  
-          or error message */} 
-          {file ? ( 
-            // Display the selected image 
-            <View> 
-                <Image source={{ uri: file }} 
-                    style={styles.image} /> 
-            </View> 
-          ) : ( 
-            // Display an error message if there's  
-            // an error or no image selected 
-            <Text style={styles.errorText}>{error}</Text> 
-          )} 
 
           <View style={{
               flexDirection:'row', 
               borderBottomColor:'#ccc', 
               borderBottomWidth: 1, 
               paddingBottom: 8, 
-              paddingTop: 30,
+              paddingTop: 20,
               marginBottom: 25, 
             }}>
               <MaterialIcons name='drive-file-rename-outline' size={20} color="#666" style={{marginRight:5}} />
@@ -267,13 +271,15 @@ const UploadListings = () => {
         <TouchableOpacity 
           disabled={!isFormValid}
           onPress={handleSubmit}
-          style={{
-            backgroundColor: '#8C52FF', 
-            padding: 20, 
-            borderRadius: 10, 
-            marginBottom: 30, 
-            width: 300,
-          }}>
+          style={[
+            {
+              padding: 20, 
+              borderRadius: 10, 
+              marginBottom: 30, 
+              width: 300,
+            },
+            isFormValid ? { backgroundColor: '#8C52FF' } : { backgroundColor: '#ccc' }
+          ]}>
             <Text style={{textAlign:'center', fontWeight:'700', fontSize: 16, color: '#FFFFFF'}}>Upload Listing</Text>
         </TouchableOpacity>
 
@@ -315,7 +321,7 @@ const styles = StyleSheet.create({
       padding: 16, 
   }, 
   header: { 
-      fontSize: 20, 
+      fontSize: 15, 
       marginBottom: 16, 
       color: "blue"
   }, 
@@ -345,11 +351,23 @@ const styles = StyleSheet.create({
       elevation: 5,
   }, 
   image: { 
-      width: 240, 
-      height: 240, 
+      width: 150, 
+      height: 150, 
       borderRadius: 8,
   }, 
   errorText: { 
       color: "red", 
   }, 
+  imagePlaceholder: {
+    width: 150,
+    height: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e0e0e0',
+    marginVertical: 20,
+  },
+  placeholderText: {
+    color: '#888',
+    fontSize: 16,
+  },
 });
