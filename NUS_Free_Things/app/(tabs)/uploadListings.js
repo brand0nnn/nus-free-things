@@ -10,6 +10,7 @@ import { useNavigation } from 'expo-router';
 import { auth } from "../../firebaseConfig.js";
 import { ScrollView } from 'react-native-gesture-handler';
 import OneMapXYZMap from './OneMap.js';
+import { MaterialIcons } from '@expo/vector-icons';
 
 function InputWithLabel({ label, placeholder, value, onChangeText }) {
     return (
@@ -175,43 +176,113 @@ const UploadListings = () => {
 
   return ( 
     <ScrollView>
-        <View style={styles.container}> 
-            <InputWithLabel label="Name" placeholder="Name of item" value={name} onChangeText={setName} />
-            <InputWithLabel label="Expiry" placeholder="Expiry date" value={expiry} onChangeText={setExpiry} />
-            <InputWithLabel label="Location" placeholder="Pick up location" value={PickUp} onChangeText={setPickUp} />
-            <TextBox label="Desription" multiline={true} numberOfLines={4} value={description} onChangeText={setDescription} />
-            <TouchableOpacity onPress={pickImage}> 
-                <Text style={styles.header}>Add Image</Text> 
-            </TouchableOpacity> 
+      <View style={styles.container}> 
+        <View style={{ padding: 20, justifyContent: "center", alignItems: "center", flex: 8 }}>  
+          
+          <View style={{paddingBottom: 10, alignSelf: 'flex-start', paddingTop: 40}}>
+            <Text style={{fontSize: 24, marginBottom: 20, fontWeight: 'bold'}}>Enter listing details</Text>
+          </View>
 
-            {/* Conditionally render the image  
-            or error message */} 
-            {file ? ( 
-                // Display the selected image 
-                <View> 
-                    <Image source={{ uri: file }} 
-                        style={styles.image} /> 
-                </View> 
-            ) : ( 
-                // Display an error message if there's  
-                // an error or no image selected 
-                <Text style={styles.errorText}>{error}</Text> 
-            )} 
-            
-            <TouchableOpacity style={styles.button} 
-                disabled={!isFormValid}
-                onPress={handleSubmit}> 
-                <Text style={styles.buttonText}> 
-                    Upload Listing
-                </Text> 
-            </TouchableOpacity> 
+          <TouchableOpacity onPress={pickImage}> 
+            <Text style={styles.header}>Add Image</Text> 
+          </TouchableOpacity> 
 
-            {Object.values(errors).map((error, index) => ( 
-                    <Text key={index} style={styles.errorText}> 
-                        {error} 
-                    </Text>
-            ))}
-        </View> 
+          {/* Conditionally render the image  
+          or error message */} 
+          {file ? ( 
+            // Display the selected image 
+            <View> 
+                <Image source={{ uri: file }} 
+                    style={styles.image} /> 
+            </View> 
+          ) : ( 
+            // Display an error message if there's  
+            // an error or no image selected 
+            <Text style={styles.errorText}>{error}</Text> 
+          )} 
+
+          <View style={{
+              flexDirection:'row', 
+              borderBottomColor:'#ccc', 
+              borderBottomWidth: 1, 
+              paddingBottom: 8, 
+              paddingTop: 30,
+              marginBottom: 25, 
+            }}>
+              <MaterialIcons name='drive-file-rename-outline' size={20} color="#666" style={{marginRight:5}} />
+              <TextInput 
+                placeholder='Enter name of item'
+                style={{flex: 1, paddingVertical: 0}}
+                value={name}
+                onChangeText={setName}
+              />
+          </View>
+          <View style={{
+              flexDirection:'row', 
+              borderBottomColor:'#ccc', 
+              borderBottomWidth: 1, 
+              paddingBottom: 8, 
+              marginBottom: 25, 
+            }}>
+              <MaterialIcons name='calendar-month' size={20} color="#666" style={{marginRight:5}} />
+              <TextInput 
+                placeholder='Enter expiry date (if any)'
+                style={{flex: 1, paddingVertical: 0}}
+                value={expiry}
+                onChangeText={setExpiry}
+              />
+          </View>
+          <View style={{
+              flexDirection:'row', 
+              borderBottomColor:'#ccc', 
+              borderBottomWidth: 1, 
+              paddingBottom: 8, 
+              marginBottom: 25, 
+            }}>
+              <MaterialIcons name='location-pin' size={20} color="#666" style={{marginRight:5}} />
+              <TextInput 
+                placeholder='Enter pick up location'
+                style={{flex: 1, paddingVertical: 0}}
+                value={PickUp}
+                onChangeText={setPickUp}
+              />
+          </View>
+          <View style={{
+              flexDirection:'row', 
+              borderBottomColor:'#ccc', 
+              borderBottomWidth: 1, 
+              paddingBottom: 8, 
+              marginBottom: 25, 
+            }}>
+              <MaterialIcons name='description' size={20} color="#666" style={{marginRight:5}} />
+              <TextInput 
+                placeholder='Enter description'
+                style={{flex: 1, paddingVertical: 0}}
+                value={description}
+                onChangeText={setDescription}
+              />
+          </View>
+        </View>
+
+        <TouchableOpacity 
+          disabled={!isFormValid}
+          onPress={handleSubmit}
+          style={{
+            backgroundColor: '#8C52FF', 
+            padding: 20, 
+            borderRadius: 10, 
+            marginBottom: 30, 
+            width: 300,
+          }}>
+            <Text style={{textAlign:'center', fontWeight:'700', fontSize: 16, color: '#FFFFFF'}}>Upload Listing</Text>
+        </TouchableOpacity>
+
+        {Object.values(errors).map((error, index) => ( 
+                <Text key={index} style={styles.errorText}> 
+                    {error} 
+                </Text>
+        ))}
+      </View> 
     </ScrollView>
   ); 
 } 
