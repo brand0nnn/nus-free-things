@@ -16,10 +16,10 @@ const XYZMapPage = () => {
   };
 
   // Define boundaries for NUS
-  const minLat = 1.29240;
-  const maxLat = 1.31028;
-  const minLng = 103.76714;
-  const maxLng = 103.78619;
+  const minLat = 1.28974;
+  const maxLat = 1.31342;
+  const minLng = 103.76492;
+  const maxLng = 103.79219;
 
   // State to manage the current region
   const [region, setRegion] = useState(initialRegion);
