@@ -127,24 +127,9 @@ function InputWithLabel({placeholder, value, onChangeText, onSubmitEditing }) {
   );
 }
 
-const Heading = () => {
-  const [search, setSearch] = useState("");
-  const navigation = useNavigation();
-
-  return (
-    <View style={{flexDirection: "row", paddingTop: 45, paddingHorizontal: 5, backgroundColor: '#9575CD'}}>
-      <View style={{flex: 1}}>
-        <InputWithLabel placeholder="Search" value={search} onChangeText={setSearch}/>
-      </View>
-      <TouchableOpacity onPress={() => navigation.navigate("ChatHistory")}>
-        <IonIcon name="chatbubble-outline" style={{fontSize: 30, paddingTop: 20, paddingRight: 12}}></IonIcon>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
 const Body = () => {
   const navigation = useNavigation();
+  const [search, setSearch] = useState("");
   const [listings, setListings] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   
@@ -183,30 +168,40 @@ const Body = () => {
   }, []);
 
   return (
-    <ScrollView>
-      <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
-        {
-          listings.filter(
-            listing => listing.email !== currentUser.email
-          ).map(listings => (
-            <TouchableOpacity key={listings.id}
-                onPress={() => navigation.navigate("CardZoomIn",
-                {
-                  listings,
-                }
-              )}>
-              <Card
-                key={listings.id}
-                name={listings.name}
-                expiry={listings.expiry}
-                pickup={listings.pickup}
-                url={listings.imageUrl}
-              />
-            </TouchableOpacity>
-          ))
-        }
+    <View>
+      <View style={{flexDirection: "row", paddingTop: 45, paddingHorizontal: 5, backgroundColor: '#9575CD'}}>
+        <View style={{flex: 1}}>
+          <InputWithLabel placeholder="Search" value={search} onChangeText={setSearch}/>
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate("ChatHistory")}>
+          <IonIcon name="chatbubble-outline" style={{fontSize: 30, paddingTop: 20, paddingRight: 12}}></IonIcon>
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+      <ScrollView>
+        <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
+          {
+            listings.filter(
+              listing => (listing.email !== currentUser.email && listing.name.toLowerCase().includes(search.toLowerCase()))
+            ).map(listings => (
+              <TouchableOpacity key={listings.id}
+                  onPress={() => navigation.navigate("CardZoomIn",
+                  {
+                    listings,
+                  }
+                )}>
+                <Card
+                  key={listings.id}
+                  name={listings.name}
+                  expiry={listings.expiry}
+                  pickup={listings.pickup}
+                  url={listings.imageUrl}
+                />
+              </TouchableOpacity>
+            ))
+          }
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 // card for viewing listings
@@ -528,7 +523,6 @@ const cardStyles = StyleSheet.create({
 const Listing = () => {
   return (  
     <View style={{flex: 1}}>
-      <Heading />
       <Body />
     </View>
   );
