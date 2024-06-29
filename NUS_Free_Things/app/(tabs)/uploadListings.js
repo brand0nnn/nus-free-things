@@ -177,13 +177,13 @@ const UploadListings = () => {
 
   return ( 
     <ScrollView>
-      <View style={{flexDirection: "row", paddingTop: 21, paddingHorizontal: 10, backgroundColor: '#8C52FF'}}>
+      <View style={{flexDirection: "row", paddingTop: 38, paddingHorizontal: 10, backgroundColor: '#9575CD'}}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <View style={{flex: 1, paddingTop: 35, paddingBottom: 10, paddingLeft: 10}}>
             <TabBarIcon size={35} name={"arrow-back-outline"}/>
           </View>
         </TouchableOpacity>
-        <View style={{paddingLeft: 103, paddingTop: 40}}>
+        <View style={{paddingLeft: 103, paddingTop: 35}}>
           <Text style={{textAlign:'center', fontWeight:'700', fontSize: 22, color: '#FFFFFF'}}>Upload</Text>
         </View>
       </View>

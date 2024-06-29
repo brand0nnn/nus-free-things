@@ -33,7 +33,19 @@ const ChatHistory = () => {
           const buyerChatrooms = buyerSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           
           const allChatrooms = [...ownerChatrooms, ...buyerChatrooms];
-          setChatrooms(allChatrooms);
+
+          const chatroomsWithDetails = await Promise.all(
+            allChatrooms.map(async (chatroom) => {
+              const listingRef = doc(db, 'listings', chatroom.listingId);
+              const listingSnapshot = await getDoc(listingRef);
+              return {
+                ...chatroom,
+                listingDetails: listingSnapshot.exists() ? listingSnapshot.data() : null,
+              };
+            })
+          );
+
+          setChatrooms(chatroomsWithDetails);
           
         } catch (error) {
           console.error('Error fetching chatrooms:', error);
@@ -53,7 +65,7 @@ const ChatHistory = () => {
 
   return (
     <View style={{flex: 1}}>
-        <View style={{flex: 1, borderBottomColor: "#B2B8BB", borderBottomWidth: 0.5, justifyContent: "flex-end"}}>
+        <View style={{flex: 1, borderBottomColor: "#B2B8BB", paddingBottom: 10, borderBottomWidth: 0.5, justifyContent: "flex-end", backgroundColor: '#9575CD', paddingTop: 10}}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <View style={{paddingLeft: 16}}>
               <TabBarIcon size={35} name={"close-outline"} />
@@ -70,7 +82,7 @@ const ChatHistory = () => {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableHighlight activeOpacity={0.6} underlayColor="#DDDDDD" onPress={() => handleChatPress(item)}>
-              <IndividualChat chatroom={item} />
+              <IndividualChat chatroom={item} currentUser={currentUser} />
             </TouchableHighlight>
           )}
         />
@@ -79,16 +91,26 @@ const ChatHistory = () => {
   );
 };
 
-const IndividualChat = ({chatroom}) => {
+const IndividualChat = ({ chatroom, currentUser }) => {
+  const { listingDetails } = chatroom;
+
+  if (!listingDetails) {
+    return null;
+  }
+
+  const isOwner = listingDetails.ownerId === currentUser.uid;
+  const ownerText = isOwner ? "You are the owner" : listingDetails.email;
 
   return (
-    <View style={{height: 72}}>
-      <View style={{alignSelf: "center"}}>
-        <Text style={{fontSize: 30}}>{chatroom.listingName}</Text>
+    <View style={{ flexDirection: 'row', padding: 10, borderBottomWidth: 1, borderTopWidth:1, borderBottomColor: '#ccc', borderTopColor: '#ccc'}}>
+      <Image source={{ uri: listingDetails.imageUrl }} style={{ width: 50, height: 50, borderRadius: 25 }} />
+      <View style={{ marginLeft: 10 }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 18, paddingTop: 3 }}>{listingDetails.name}</Text>
+        <Text style={{ fontSize: 16, color: '#888888' }}>{ownerText}</Text>
       </View>
     </View>
   );
-}
+};
 
 
 function InputWithLabel({placeholder, value, onChangeText, onSubmitEditing }) {
@@ -110,12 +132,12 @@ const Heading = () => {
   const navigation = useNavigation();
 
   return (
-    <View style={{flexDirection: "row", paddingTop: 25, paddingHorizontal: 10, backgroundColor: '#8C52FF'}}>
+    <View style={{flexDirection: "row", paddingTop: 45, paddingHorizontal: 5, backgroundColor: '#9575CD'}}>
       <View style={{flex: 1}}>
         <InputWithLabel placeholder="Search" value={search} onChangeText={setSearch}/>
       </View>
       <TouchableOpacity onPress={() => navigation.navigate("ChatHistory")}>
-        <IonIcon name="chatbubble-outline" style={{fontSize: 30, paddingTop: 20}}></IonIcon>
+        <IonIcon name="chatbubble-outline" style={{fontSize: 30, paddingTop: 20, paddingRight: 12}}></IonIcon>
       </TouchableOpacity>
     </View>
   );
@@ -381,28 +403,38 @@ const ListingChat = (props) => {
     }
   };
 
+  const navigateToCardZoomIn = () => {
+    if (listing) {
+      navigation.navigate("CardZoomIn", { listings: listing });
+    } else {
+      console.warn('Listing details not available yet.');
+    }
+  };
+
   if (!listing) {
     return <Text>Loading...</Text>;
   }
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flexDirection: "row", borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5, flex: 1}}>
+      <View style={{ flexDirection: "row", borderBottomColor: "#B2B8BB", paddingBottom: 10, borderBottomWidth: 1.5, flex: 1}}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <View style={{ paddingTop: 70, paddingBottom: 10, paddingLeft: 16 }}>
             <TabBarIcon size={35} name={"chevron-back-outline"} />
           </View>
         </TouchableOpacity>
-        <View style={{ paddingTop: 50, paddingLeft: 15 }}>
+        <View style={{ paddingTop: 43, paddingLeft: 15 }}>
           <Image
             style={styles.avatar}
             source={{ uri: listing.imageUrl }}
           />
         </View>
-        <View style={{ flexDirection: "column", paddingTop: 50, paddingLeft: 16 }}>
-          <Text style={styles.listingText}>{listing.name}</Text>
-          <Text style={{ fontSize: 16, color: '#888888' }}>{currentUserEmail === listing.email ? 'You are the owner' : listing.email}</Text>
-        </View>
+        <TouchableOpacity onPress={navigateToCardZoomIn}>
+          <View style={{ flexDirection: "column", paddingTop: 50, paddingLeft: 12 }}>
+            <Text style={styles.listingText}>{listing.name}</Text>
+            <Text style={{ fontSize: 16, color: '#888888' }}>{currentUserEmail === listing.email ? 'You are the owner' : listing.email}</Text>
+          </View>
+        </TouchableOpacity>
       </View>
       <View style={{ backgroundColor: '#FFFFFF', flex: 6 }}>
         <GiftedChat

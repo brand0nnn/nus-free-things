@@ -117,14 +117,14 @@ const Heading = () => {
 
   return (
     <View style={{flex: 1}}>
-        <View style={{flex: 2, backgroundColor: '#8C52FF'}}>
+        <View style={{flex: 2, backgroundColor: '#9575CD', paddingTop: 27}}>
         </View>
-        <View style={{position: "absolute", left: 20, top: 70,}}>
+        <View style={{position: "absolute", left: 20, top: 70, paddingTop: 10}}>
             <Image 
                 source={require('../../assets/images/react-logo.png')}
                 style={styles.avatar}
             />
-            <View style={{paddingTop: 20}}>
+            <View style={{paddingTop: 5}}>
               <Text style={{fontSize: 18}}>Email: {currentUser.email}</Text>
             </View>
         </View>
