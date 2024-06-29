@@ -178,7 +178,7 @@ const Body = () => {
         </TouchableOpacity>
       </View>
       <ScrollView>
-        <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
+        <View style={{paddingLeft: 42, flexWrap: "wrap", flexDirection: "row", justifyContent: "flex-start"}}>
           {
             listings.filter(
               listing => (listing.email !== currentUser.email && listing.name.toLowerCase().includes(search.toLowerCase()))

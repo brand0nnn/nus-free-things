@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, View, Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, Alert, SafeAreaView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Pressable } from 'react-native';
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db } from "../../firebaseConfig.js";
@@ -11,44 +10,15 @@ import { auth } from "../../firebaseConfig.js";
 import { ScrollView } from 'react-native-gesture-handler';
 import { MaterialIcons } from '@expo/vector-icons';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-
-function InputWithLabel({ label, placeholder, value, onChangeText }) {
-    return (
-      <View style={{ padding: 16 }}>
-        <Text style={{ padding: 8, fontSize: 18 }}>{label}</Text>
-        <TextInput
-          placeholder={placeholder}
-          value={value}
-          onChangeText={onChangeText}
-          style={{ padding: 8, fontSize: 18, backgroundColor: "#DBD8D7", width: 200 }}
-        />
-      </View>
-    );
-};
-
-function TextBox({ label, placeholder, value, onChangeText, multiline, numberOfLines }) {
-    return (
-      <View style={{ padding: 16 }}>
-        <Text style={{ padding: 8, fontSize: 18 }}>{label}</Text>
-        <TextInput
-          multiline={multiline}
-          numberOfLines={numberOfLines}
-          placeholder={placeholder}
-          value={value}
-          onChangeText={onChangeText}
-          style={{ padding: 8, fontSize: 18, height: 100, width: 220, backgroundColor: "#DBD8D7" }}
-        />
-      </View>
-    );
-};
+import { SelectList } from 'react-native-dropdown-select-list'
 
 const UploadListings = () => {
   const [name, setName] = useState("");
   const [expiry, setExpiry] = useState("");
-  const [PickUp, setPickUp] = useState("");
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState({}); 
   const [isFormValid, setIsFormValid] = useState(false); 
+  const [selected, setSelected] = useState("");
   // Stores the selected image URI 
   const [file, setFile] = useState(""); 
   
@@ -75,7 +45,7 @@ const UploadListings = () => {
 
   useEffect(() => {
     validateForm();
-  }, [name, expiry, PickUp, description]);
+  }, [name, expiry, selected, description]);
 
   const validateForm = () => {
     let errors = {};
@@ -88,8 +58,8 @@ const UploadListings = () => {
         errors.expiry = '*Expiry date is required';
     }
 
-    if (!PickUp){
-        errors.PickUp = '*Pick up location is required';
+    if (!selected){
+        errors.selected = '*Pick up location is required';
     }
 
     if (!description){
@@ -155,7 +125,7 @@ const UploadListings = () => {
             key: name + email,
             name: name,
             expiry: expiry,
-            pickup: PickUp,
+            pickup: selected,
             imageUrl: imageUrl,
             description: description,
             email: email,
@@ -173,6 +143,17 @@ const UploadListings = () => {
     }
     navigation.navigate("SuccessfulPage");
   };
+
+  const pickUpLocations = [
+    {title: "Tembusu", value: "Tembusu"},
+    {title: "RC4", value: "RC4"},
+    {title: "CAPT", value: "CAPT"},
+    {title: "RVRC", value: "RVRC"},
+    {title: "Yale", value: "Yale"},
+    {title: "UTR", value: "UTR"},
+    {title: "PGP", value: "PGP"},
+    {title: "Raffles Hall", value: "Raffles Hall"},
+  ];
 
   return ( 
     <ScrollView>
@@ -235,20 +216,16 @@ const UploadListings = () => {
                 onChangeText={setExpiry}
               />
           </View>
-          <View style={{
-              flexDirection:'row', 
-              borderBottomColor:'#ccc', 
-              borderBottomWidth: 1, 
-              paddingBottom: 8, 
-              marginBottom: 25, 
-            }}>
-              <MaterialIcons name='location-pin' size={20} color="#666" style={{marginRight:5}} />
-              <TextInput 
-                placeholder='Enter pick up location'
-                style={{flex: 1, paddingVertical: 0}}
-                value={PickUp}
-                onChangeText={setPickUp}
-              />
+          <View style={{flexDirection:'row', alignSelf: "flex-start"}}>
+            <SelectList
+              data={pickUpLocations}
+              title="Pick Up Location"
+              setSelected={(val) => setSelected(val)} 
+              placeholder={<CustomPlaceholder />}
+              maxHeight={150}
+              dropdownStyles={{width: 370, borderColor: '#ccc'}}
+              boxStyles={{borderColor: '#ccc', width: 400, borderWidth: 0, borderBottomWidth: 1, paddingBottom: 8, marginBottom: 25, borderBottomColor:'#ccc'}}
+            />
           </View>
           <View style={{
               flexDirection:'row', 
@@ -292,6 +269,14 @@ const UploadListings = () => {
   ); 
 } 
 
+const CustomPlaceholder = () => {
+  return (
+    <View style={{flexDirection: 'row'}}>
+      <MaterialIcons name='location-pin' size={20} color="#666" style={{marginRight:5}} />
+      <Text style={{color:"#666"}}>Select pick up location</Text>
+    </View>
+  )
+}
 const SuccessfulPage = () => {
     return (
         <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
