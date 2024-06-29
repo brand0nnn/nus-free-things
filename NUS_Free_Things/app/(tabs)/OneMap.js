@@ -1,46 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import MapView, { UrlTile } from 'react-native-maps';
+import MapView, { UrlTile, Marker } from 'react-native-maps';
 
-const OneMapXYZMap = () => {
-  const [tileUrl, setTileUrl] = useState(null);
+const XYZMapPage = () => {
+  const xyzUrl = 'https://www.onemap.gov.sg/maps/tiles/Default_HD/{z}/{x}/{y}.png';
 
-  // Function to fetch OneMap XYZ tile URL
-  useEffect(() => {
-    const fetchTileUrl = async () => {
-      try {
-        //const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNzViNzJkNTRjYTQ2YjVkZGUyODQ5YThkZjZmYjljNCIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzE5NTcxMTkyLCJleHAiOjE3MTk4MzAzOTIsIm5iZiI6MTcxOTU3MTE5MiwianRpIjoic1JTTWpYcDlkRmtGdU9JayIsInVzZXJfaWQiOjM5NjEsImZvcmV2ZXIiOmZhbHNlfQ.AdA8cQS71PHvvh9KvWiaQ3AR9alkFRlQG_znTkjcuD4'; // Replace with your token
-        //const url = `https://www.onemap.gov.sg/maps/arcgis/rest/services/BASEMAP/MapServer/tile/{z}/{y}/{x}?token=${token}`;
-        const url = 'https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Night&zoomLevel=15'
-        setTileUrl(url);
-      } catch (error) {
-        console.error('Error fetching tile URL:', error);
-      }
-    };
+  // Define the initial region and boundaries
+  const initialRegion = {
+    latitude: 1.29692,
+    longitude: 103.77332,
+    latitudeDelta: 0.006,
+    longitudeDelta: 0.006,
+  };
 
-    fetchTileUrl();
-  }, []);
+  // Define boundaries for NUS
+  const minLat = 1.29240;
+  const maxLat = 1.31028;
+  const minLng = 103.76714;
+  const maxLng = 103.78619;
 
-  /*if (!tileUrl) {
-    return null; // Or loading indicator while fetching
-  }*/
+  // State to manage the current region
+  const [region, setRegion] = useState(initialRegion);
+  const [markers, setMarkers] = useState([
+    { coordinate: { latitude: 1.29692, longitude: 103.77332 }, title: 'Central Library' },
+  ]);
+
+  // Update region while scrolling to enforce boundaries
+  const onRegionChange = (newRegion) => {
+    const { latitude, longitude, latitudeDelta, longitudeDelta } = newRegion;
+    let updatedRegion = { latitude, longitude, latitudeDelta, longitudeDelta };
+
+    // Enforce boundaries
+    if (latitude < minLat) {
+      updatedRegion.latitude = minLat;
+    } else if (latitude > maxLat) {
+      updatedRegion.latitude = maxLat;
+    }
+    if (longitude < minLng) {
+      updatedRegion.longitude = minLng;
+    } else if (longitude > maxLng) {
+      updatedRegion.longitude = maxLng;
+    }
+
+    setRegion(updatedRegion);
+  };
 
   return (
     <View style={styles.container}>
       <MapView
-        style={styles.container}
-        initialRegion={{
-          latitude: 200.28676, // Default starting point latitude
-          longitude: 200.8535, // Default starting point longitude
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
+        style={styles.map}
+        initialRegion={initialRegion}
+        region={region}
+        onRegionChange={onRegionChange}
       >
-        {/* Use UrlTile to fetch and display OneMap XYZ tiles */}
         <UrlTile
-          urlTemplate={tileUrl} // Provide the fetched tile URL
-          maximumZ={19} // Maximum zoom level
+          urlTemplate={xyzUrl}
+          maximumZ={18} // Adjust according to your tile provider's maximum zoom level
+          zIndex={-1} // Ensure it's below other map layers
         />
+        {/* Render markers */}
+        {markers.map((marker, index) => (
+          <Marker
+            key={index}
+            coordinate={marker.coordinate}
+            title={marker.title}
+          />
+        ))}
       </MapView>
     </View>
   );
@@ -57,4 +82,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OneMapXYZMap;
+export default XYZMapPage;

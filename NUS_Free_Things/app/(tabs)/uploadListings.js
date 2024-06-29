@@ -9,7 +9,6 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from 'expo-router';
 import { auth } from "../../firebaseConfig.js";
 import { ScrollView } from 'react-native-gesture-handler';
-import OneMapXYZMap from './OneMap.js';
 import { MaterialIcons } from '@expo/vector-icons';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 
