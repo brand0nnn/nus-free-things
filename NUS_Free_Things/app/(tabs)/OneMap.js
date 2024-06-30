@@ -16,10 +16,10 @@ const XYZMapPage = () => {
   };
 
   // Define boundaries for NUS including water area
-  const minLat = 1.200;
-  const maxLat = 1.480;
-  const minLng = 103.600;
-  const maxLng = 104.100;
+  const minLat = 1.28974;
+  const maxLat = 1.31342;
+  const minLng = 103.76492;
+  const maxLng = 103.79219;
 
   // State to manage the current region and markers
   const [region, setRegion] = useState(initialRegion);
@@ -116,11 +116,12 @@ const XYZMapPage = () => {
               <ScrollView style={styles.callout} contentContainerStyle={styles.calloutContent}>
                 {marker.listings.map((listing, idx) => (
                   <View key={idx} style={styles.listingContainer}>
-                    <Text><Image source={{ uri: listing.imageUrl }} style={styles.image} /></Text>
+                    <Text style={{paddingRight: 10}}><Image source={{ uri: listing.imageUrl }} style={styles.image} /></Text>
                     <View style={styles.textContainer}>
                       <Text style={styles.title}>{listing.name}</Text>
                       <Text style={styles.ownerText}>{listing.email}</Text>
                     </View>
+                    <Image source={{ uri: listing.imageUrl }} style={styles.image} />
                   </View>
                 ))}
               </ScrollView>
@@ -128,6 +129,26 @@ const XYZMapPage = () => {
           </Marker>
         ))}
       </MapView>
+      <View style={styles.bottomImageContainer}>
+        <Image
+          source={{ uri: 'https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png' }}
+          style={styles.bottomImage}
+        />
+        <Text style={styles.bottomText}>
+          <Text>OneMap</Text>
+          <Text>&nbsp;</Text>
+          <Text>&copy;</Text>
+          <Text>&nbsp;</Text>
+          <Text>contributors</Text>
+          <Text>&nbsp;&#124;&nbsp;</Text>
+          <Text
+            style={{ color: 'blue' }}
+            onPress={() => Linking.openURL('https://www.sla.gov.sg/')}
+          >
+            Singapore Land Authority
+          </Text>
+        </Text>
+      </View>
     </View>
   );
 };
@@ -150,6 +171,8 @@ const styles = StyleSheet.create({
   },
   listingContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
@@ -160,7 +183,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   textContainer: {
-    marginLeft: 10,
+    flex: 1,
+    marginRight: 10,
   },
   title: {
     fontWeight: 'bold',
@@ -170,6 +194,22 @@ const styles = StyleSheet.create({
   ownerText: {
     fontSize: 16,
     color: '#888888',
+  },
+  bottomImageContainer: {
+    position: 'absolute',
+    right: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bottomImage: {
+    width: 20,
+    height: 20,
+    marginRight: 2,
+  },
+  bottomText: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    color: '#888',
   },
 });
 
