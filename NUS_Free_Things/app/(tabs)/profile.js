@@ -4,6 +4,7 @@ import { auth, db } from "../../firebaseConfig.js";
 import { ScrollView } from 'react-native-gesture-handler';
 import React, {useState, useEffect} from 'react';
 import { createStackNavigator } from "@react-navigation/stack";
+import { CommonActions } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
 import { CardZoomIn } from './index.js';
 import UploadListings from './uploadListings.js';

@@ -13,7 +13,7 @@ const Tab = createBottomTabNavigator();
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  initalRouteName = "layout";
   return (
       <Tab.Navigator
         screenOptions={{

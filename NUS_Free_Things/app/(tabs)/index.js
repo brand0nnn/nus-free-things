@@ -178,7 +178,7 @@ const Body = () => {
         </TouchableOpacity>
       </View>
       <ScrollView>
-        <View style={{paddingLeft: 42, flexWrap: "wrap", flexDirection: "row", justifyContent: "flex-start"}}>
+        <View style={{paddingLeft: 15, flexWrap: "wrap", flexDirection: "row", justifyContent: "flex-start"}}>
           {
             listings.filter(
               listing => (listing.email !== currentUser.email && listing.name.toLowerCase().includes(search.toLowerCase()))
@@ -530,7 +530,7 @@ const Listing = () => {
 
 export default function HomeScreen() {
   const navigation = useNavigation();
-
+  initalRouteName = "index";
   /*useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
