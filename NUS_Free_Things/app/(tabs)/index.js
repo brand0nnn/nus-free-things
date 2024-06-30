@@ -530,7 +530,7 @@ const Listing = () => {
 
 export default function HomeScreen() {
   const navigation = useNavigation();
-
+  initalRouteName = "index";
   /*useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {

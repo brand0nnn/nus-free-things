@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Image, Text, ScrollView } from 'react-native';
 import MapView, { UrlTile, Marker, Callout } from 'react-native-maps';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from "../../firebaseConfig.js";
 
 const XYZMapPage = () => {
@@ -15,13 +15,13 @@ const XYZMapPage = () => {
     longitudeDelta: 0.006,
   };
 
-  // Define boundaries for NUS
-  const minLat = 1.28974;
-  const maxLat = 1.31342;
-  const minLng = 103.76492;
-  const maxLng = 103.79219;
+  // Define boundaries for NUS including water area
+  const minLat = 1.200;
+  const maxLat = 1.480;
+  const minLng = 103.600;
+  const maxLng = 104.100;
 
-  // State to manage the current region
+  // State to manage the current region and markers
   const [region, setRegion] = useState(initialRegion);
   const [markers, setMarkers] = useState([]);
 
@@ -74,7 +74,7 @@ const XYZMapPage = () => {
   }, []);
 
   // Update region while scrolling to enforce boundaries
-  const onRegionChange = (newRegion) => {
+  const onRegionChangeComplete = useCallback((newRegion) => {
     const { latitude, longitude, latitudeDelta, longitudeDelta } = newRegion;
     let updatedRegion = { latitude, longitude, latitudeDelta, longitudeDelta };
 
@@ -91,7 +91,7 @@ const XYZMapPage = () => {
     }
 
     setRegion(updatedRegion);
-  };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -99,7 +99,7 @@ const XYZMapPage = () => {
         style={styles.map}
         initialRegion={initialRegion}
         region={region}
-        onRegionChange={onRegionChange}
+        onRegionChangeComplete={onRegionChangeComplete}
       >
         <UrlTile
           urlTemplate={xyzUrl}
@@ -113,19 +113,17 @@ const XYZMapPage = () => {
             coordinate={marker.coordinate}
           >
             <Callout>
-              <View style={styles.calloutContainer}>
-                <ScrollView style={styles.callout} nestedScrollEnabled={true}>
-                  {marker.listings.map((listing, idx) => (
-                    <View key={idx} style={styles.listingContainer}>
-                      <Image source={{ uri: listing.imageUrl }} style={styles.image} />
-                      <View style={styles.textContainer}>
-                        <Text style={styles.title}>{listing.name}</Text>
-                        <Text style={styles.ownerText}>{listing.email}</Text>
-                      </View>
+              <ScrollView style={styles.callout} contentContainerStyle={styles.calloutContent}>
+                {marker.listings.map((listing, idx) => (
+                  <View key={idx} style={styles.listingContainer}>
+                    <Text><Image source={{ uri: listing.imageUrl }} style={styles.image} /></Text>
+                    <View style={styles.textContainer}>
+                      <Text style={styles.title}>{listing.name}</Text>
+                      <Text style={styles.ownerText}>{listing.email}</Text>
                     </View>
-                  ))}
-                </ScrollView>
-              </View>
+                  </View>
+                ))}
+              </ScrollView>
             </Callout>
           </Marker>
         ))}
@@ -135,44 +133,44 @@ const XYZMapPage = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-      ...StyleSheet.absoluteFillObject,
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-    },
-    map: {
-      ...StyleSheet.absoluteFillObject,
-    },
-    calloutContainer: {
-      width: 250,
-      height: 200, // Set a fixed height for the callout container
-    },
-    callout: {
-      flex: 1,
-    },
-    listingContainer: {
-      flexDirection: 'row',
-      padding: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: '#ccc',
-    },
-    image: {
-      width: 50,
-      height: 50,
-      borderRadius: 25,
-    },
-    textContainer: {
-      marginLeft: 10,
-    },
-    title: {
-      fontWeight: 'bold',
-      fontSize: 18,
-      paddingTop: 3,
-    },
-    ownerText: {
-      fontSize: 16,
-      color: '#888888',
-    },
-  });
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  callout: {
+    width: 250,
+    maxHeight: 200, // Set a maximum height for the callout content
+  },
+  calloutContent: {
+    flexGrow: 1,
+  },
+  listingContainer: {
+    flexDirection: 'row',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  image: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  textContainer: {
+    marginLeft: 10,
+  },
+  title: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    paddingTop: 3,
+  },
+  ownerText: {
+    fontSize: 16,
+    color: '#888888',
+  },
+});
 
 export default XYZMapPage;
