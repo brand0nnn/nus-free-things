@@ -3,24 +3,9 @@ import React, {useState} from 'react';
 import { useNavigation } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebaseConfig.js";
-
-function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry, onSubmitEditing }) {
-    return (
-      <View style={{ padding: 16 }}>
-        <Text style={{ padding: 8, fontSize: 18 }}>{label}</Text>
-        <TextInput
-          placeholder={placeholder}
-          value={value}
-          onChangeText={onChangeText}
-          secureTextEntry={secureTextEntry}
-          onSubmitEditing={onSubmitEditing}
-          style={{ padding: 8, fontSize: 18 }}
-        />
-      </View>
-    );
-};
+import { createUserWithEmailAndPassword, sendEmailVerification, signOut } from "firebase/auth";
+import { auth, db } from "../firebaseConfig.js";
+import { doc, setDoc } from "firebase/firestore";
 
 export default SignUpScreen = () => {
   const [email, setEmail] = useState("");
@@ -28,19 +13,43 @@ export default SignUpScreen = () => {
   const [confirmationPassword, setConfirmationPassword] = useState("");
   const navigation = useNavigation();
   
-  const handleSignUp = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed up 
-        const user = userCredential.user;
-        //navigation.navigate("(tabs)");
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful
+        // onAuthStateChanged will handle navigation
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        Alert.alert("Sign Up Error", errorMessage);
-        // ..
-      });    
+        // An error happened during sign-out
+        Alert.alert('Sign Out Error', error.message);
+      });
+  };
+
+  const handleSignUp = () => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+        try {
+          // Store user email in Firestore
+          await setDoc(doc(db, "users", user.uid), {
+            email: user.email,
+          });
+  
+          await sendEmailVerification(user);
+          handleSignOut();
+          Alert.alert(
+            "Verification Email Sent",
+            "A verification email has been sent to your email address. Please verify your email before logging in."
+          );
+          // Optionally, navigate to a different screen
+          navigation.navigate("SignIn");
+        } catch (error) {
+          Alert.alert("Error", error.message);
+        }
+      })
+      .catch((error) => {
+        Alert.alert("Sign Up Error", error.message);
+      });
   };
 
   function confirmPasswordsMatch() {

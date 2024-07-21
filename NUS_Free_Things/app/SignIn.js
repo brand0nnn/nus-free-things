@@ -3,35 +3,39 @@ import React, { useState } from 'react';
 import { useNavigation } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "../firebaseConfig.js";
-
-function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry, onSubmitEditing }) {
-    return (
-      <View style={{ padding: 16 }}>
-        <Text style={{ padding: 8, fontSize: 18 }}>{label}</Text>
-        <TextInput
-          placeholder={placeholder}
-          value={value}
-          onChangeText={onChangeText}
-          secureTextEntry={secureTextEntry}
-          onSubmitEditing={onSubmitEditing}
-          style={{ padding: 8, fontSize: 18, width: 220 }}
-        />
-      </View>
-    );
-}
   
 const SignInScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
 
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful
+        // onAuthStateChanged will handle navigation
+      })
+      .catch((error) => {
+        // An error happened during sign-out
+        Alert.alert('Sign Out Error', error.message);
+      });
+  };
+
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        //Signed in
         const user = userCredential.user;
+        if (user.emailVerified) {
+          navigation.navigate("(tabs)");
+        } else {
+          handleSignOut();
+          Alert.alert(
+            "Email Not Verified",
+            "Please verify your email address before signing in."
+          );
+        }
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -76,7 +80,7 @@ const SignInScreen = () => {
           borderBottomColor:'#ccc', 
           borderBottomWidth: 1, 
           paddingBottom: 8, 
-          marginBottom: 25, 
+          marginBottom: 20, 
         }}>
           <MaterialIcons name='lock' size={20} color="#666" style={{marginRight:5}} />
           <TextInput 
@@ -88,22 +92,28 @@ const SignInScreen = () => {
           />
         </View>
 
+        <View style={{flexDirection:'row', justifyContent:'center', paddingBottom: 25}}>
+          <TouchableOpacity onPress={() => navigation.navigate("reset")}>
+            <Text style={{color:'#8C52FF', fontWeight:'700'}}>Forgot password?</Text>
+          </TouchableOpacity>
+        </View>
+
         <TouchableOpacity 
           onPress={handleSignIn}
           style={{
             backgroundColor: '#8C52FF', 
             padding: 20, 
             borderRadius: 10, 
-            marginBottom: 30, 
+            marginBottom: 20, 
             width: 300,
           }}>
             <Text style={{textAlign:'center', fontWeight:'700', fontSize: 16, color: '#FFFFFF'}}>Login</Text>
         </TouchableOpacity>
 
-        <View style={{flexDirection:'row', justifyContent:'center', marginBotton: 30}}>
-          <Text>New to the app? </Text>
+        <View style={{flexDirection:'row', justifyContent:'center'}}>
+          <Text>Don't have an account? </Text>
           <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
-            <Text style={{color:'#8C52FF', fontWeight:'700'}}>Register</Text>
+            <Text style={{color:'#8C52FF', fontWeight:'700'}}>Sign Up</Text>
           </TouchableOpacity>
         </View>
       </View>

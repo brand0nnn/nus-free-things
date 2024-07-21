@@ -121,7 +121,6 @@ const XYZMapPage = () => {
                       <Text style={styles.title}>{listing.name}</Text>
                       <Text style={styles.ownerText}>{listing.email}</Text>
                     </View>
-                    <Image source={{ uri: listing.imageUrl }} style={styles.image} />
                   </View>
                 ))}
               </ScrollView>
