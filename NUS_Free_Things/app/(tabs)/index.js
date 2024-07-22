@@ -4,12 +4,15 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { createStackNavigator } from "@react-navigation/stack";
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from 'expo-router';
+import SectionedMultiSelect from 'react-native-sectioned-multi-select';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, onSnapshot, query, where, addDoc, doc, serverTimestamp, getDoc, orderBy, deleteDoc } from "firebase/firestore"; 
 import { auth, db } from "../../firebaseConfig.js";
 import { GiftedChat } from 'react-native-gifted-chat';
 import { TouchableHighlight } from 'react-native-gesture-handler';
+import { set } from 'firebase/database';
 
 const Stack = createStackNavigator();
 
@@ -132,6 +135,7 @@ const Body = () => {
   const [search, setSearch] = useState("");
   const [listings, setListings] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState([]);
   
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -173,15 +177,33 @@ const Body = () => {
         <View style={{flex: 1}}>
           <InputWithLabel placeholder="Search" value={search} onChangeText={setSearch}/>
         </View>
+        <View> 
+          <TouchableOpacity onPress={() => this.sectionedMultiSelect._toggleSelector()}>
+            <IonIcon name="filter-outline" style={{fontSize: 30, paddingTop: 20, paddingRight: 12}} />
+          </TouchableOpacity>
+          <SectionedMultiSelect
+            items={category_items}
+            uniqueKey="id"
+            onSelectedItemsChange={setSelectedCategory}
+            selectedItems={selectedCategory}
+            IconRenderer={MaterialIcons}
+            selectText="Filter categories"
+            searchPlaceholderText="Search categories"
+            showChips={false}
+            hideSelect={true}
+            colors={{ primary: "#9575CD" }}
+            ref={(component) => { this.sectionedMultiSelect = component }}
+          />
+        </View>
         <TouchableOpacity onPress={() => navigation.navigate("ChatHistory")}>
           <IonIcon name="chatbubble-outline" style={{fontSize: 30, paddingTop: 20, paddingRight: 12}}></IonIcon>
         </TouchableOpacity>
       </View>
       <ScrollView>
-        <View style={{paddingLeft: 15, flexWrap: "wrap", flexDirection: "row", justifyContent: "flex-start"}}>
+        <View style={{paddingLeft: 40, flexWrap: "wrap", flexDirection: "row", justifyContent: "flex-start"}}>
           {
             listings.filter(
-              listing => (listing.email !== currentUser.email && listing.name.toLowerCase().includes(search.toLowerCase()))
+              listing => (listing.email !== currentUser.email && listing.name.toLowerCase().includes(search.toLowerCase()) && (selectedCategory.length === 0  || !listing.category || listing.category.map(category => selectedCategory.includes(category)).includes(true)))
             ).map(listings => (
               <TouchableOpacity key={listings.id}
                   onPress={() => navigation.navigate("CardZoomIn",
@@ -195,6 +217,7 @@ const Body = () => {
                   expiry={listings.expiry}
                   pickup={listings.pickup}
                   url={listings.imageUrl}
+                  category={listings.category}
                 />
               </TouchableOpacity>
             ))
@@ -290,6 +313,15 @@ const CardZoomIn = (props) => {
     return <Text>Loading...</Text>;
   }
 
+  const getSelectedNames = () => {
+    if (!listings.category) {
+      return "";
+    }
+    return category_items
+      .filter(item => listings.category.includes(item.id))
+      .map(item => item.name).join(", ");
+  };
+
   return (
     <ScrollView>
       <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -311,6 +343,10 @@ const CardZoomIn = (props) => {
           <Text style={{fontSize: 20}}>{listings.expiry}</Text>
           <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Pick up location</Text>
           <Text style={{fontSize: 20}}>{listings.pickup}</Text>
+          <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Categories</Text>
+          <View>
+            {getSelectedNames().length > 0 ? (<Text style={{fontSize: 20}}>{getSelectedNames()}</Text>) : (<Text style={{fontSize: 20}}>No categories selected</Text>)}
+          </View>
           <Text style={{paddingTop: 30, fontSize: 25, fontWeight: "bold"}}>Description</Text>
           <Text style={{paddingTop: 5, fontSize: 20}}>{listings.description}</Text>
         </View>
@@ -318,7 +354,7 @@ const CardZoomIn = (props) => {
       {currentUser.uid === listings.ownerId ? (
         <Button title="Delete" onPress={handleDeletePress} color="#F74046"/>
       ) : (
-        <Button title="Chat" onPress={handleChatPress} />
+        <Button title="Chat" onPress={handleChatPress} color="#9575CD"/>
       )}
     </ScrollView>
   );
@@ -527,6 +563,32 @@ const Listing = () => {
     </View>
   );
 };
+
+const category_items = [{
+  id: '1',
+  name: 'Computers & Tech',
+}, {
+  id: '2',
+  name: 'Home & Furniture',
+}, {
+  id: '3',
+  name: 'Books & Stationery',
+}, {
+  id: '4',
+  name: 'Fashion',
+}, {
+  id: '5',
+  name: 'Health & Beauty',
+}, {
+  id: '6',
+  name: 'Sports & Outdoors',
+}, {
+  id: '7',
+  name: 'Food & Beverages',
+}, {
+  id: '8',
+  name: 'Others',}
+];
 
 export default function HomeScreen() {
   const navigation = useNavigation();
