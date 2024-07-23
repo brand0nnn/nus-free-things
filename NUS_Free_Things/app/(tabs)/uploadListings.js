@@ -11,6 +11,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { MaterialIcons } from '@expo/vector-icons';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { SelectList } from 'react-native-dropdown-select-list'
+import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 
 const UploadListings = () => {
   const [name, setName] = useState("");
@@ -19,6 +20,7 @@ const UploadListings = () => {
   const [errors, setErrors] = useState({}); 
   const [isFormValid, setIsFormValid] = useState(false); 
   const [selected, setSelected] = useState("");
+  const [selectedItems, setSelectedItems] = useState([]);
   // Stores the selected image URI 
   const [file, setFile] = useState(""); 
   
@@ -45,7 +47,7 @@ const UploadListings = () => {
 
   useEffect(() => {
     validateForm();
-  }, [name, expiry, selected, description]);
+  }, [name, expiry, selected, description, selectedItems]);
 
   const validateForm = () => {
     let errors = {};
@@ -64,6 +66,9 @@ const UploadListings = () => {
 
     if (!description){
         errors.description = '*Description is required';
+    }
+    if (selectedItems.length == 0){
+        errors.selectedItems = '*Category is required';
     }
 
     /*if (!file){
@@ -130,6 +135,7 @@ const UploadListings = () => {
             description: description,
             email: email,
             ownerId: currentUser.uid,
+            category: selectedItems,
         });
 
         await updateDoc(doc(db, "listings", docRef.id), {
@@ -154,6 +160,8 @@ const UploadListings = () => {
     {title: "PGP", value: "PGP"},
     {title: "Raffles Hall", value: "Raffles Hall"},
   ];
+
+  
 
   return ( 
     <ScrollView>
@@ -242,6 +250,23 @@ const UploadListings = () => {
                 onChangeText={setDescription}
               />
           </View>
+          <View style={{ 
+              width: 380,
+              borderBottomWidth: 1,
+              borderBottomColor:'#ccc', 
+          }}>
+            <SectionedMultiSelect 
+              items={category_items}
+              uniqueKey="id"
+              onSelectedItemsChange={setSelectedItems}
+              selectedItems={selectedItems}
+              IconRenderer={MaterialIcons}
+              selectText="Select categories"
+              searchPlaceholderText="Select categories"
+              showChips={false}
+              colors={{ primary: "#9575CD" }}
+            />
+          </View>
         </View>
 
         <TouchableOpacity 
@@ -284,6 +309,32 @@ const SuccessfulPage = () => {
         </View>
     )
 }
+
+const category_items = [{
+  id: '1',
+  name: 'Computers & Tech',
+}, {
+  id: '2',
+  name: 'Home & Furniture',
+}, {
+  id: '3',
+  name: 'Books & Stationery',
+}, {
+  id: '4',
+  name: 'Fashion',
+}, {
+  id: '5',
+  name: 'Health & Beauty',
+}, {
+  id: '6',
+  name: 'Sports & Outdoors',
+}, {
+  id: '7',
+  name: 'Food & Beverages',
+}, {
+  id: '8',
+  name: 'Others',}
+];
 
 const Main = () => {
     const Stack = createStackNavigator();

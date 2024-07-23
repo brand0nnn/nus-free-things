@@ -20,7 +20,7 @@ const XYZMapPage = () => {
   const maxLat = 1.31342;
   const minLng = 103.76492;
   const maxLng = 103.79219;
-
+  
   // State to manage the current region and markers
   const [region, setRegion] = useState(initialRegion);
   const [markers, setMarkers] = useState([]);
@@ -116,7 +116,7 @@ const XYZMapPage = () => {
               <ScrollView style={styles.callout} contentContainerStyle={styles.calloutContent}>
                 {marker.listings.map((listing, idx) => (
                   <View key={idx} style={styles.listingContainer}>
-                    <Text style={{paddingRight: 10}}><Image source={{ uri: listing.imageUrl }} style={styles.image} /></Text>
+                    <Text style={{paddingBottom: 20, paddingRight: 10}}><Image source={{ uri: listing.imageUrl }} style={styles.image} /></Text>
                     <View style={styles.textContainer}>
                       <Text style={styles.title}>{listing.name}</Text>
                       <Text style={styles.ownerText}>{listing.email}</Text>
