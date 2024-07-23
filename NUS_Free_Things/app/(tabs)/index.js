@@ -279,7 +279,8 @@ const CardZoomIn = (props) => {
   
       // Success message and navigation
       Alert.alert('Listing and associated chatrooms deleted successfully');
-      navigation.navigate("Listing");
+      //navigation.navigate("Listing");
+      navigation.goBack();
     } catch (error) {
       console.error('Error deleting listing and chatrooms:', error);
       Alert.alert('Error', 'Failed to delete listing and associated chatrooms');

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Image, Text, ScrollView } from 'react-native';
 import MapView, { UrlTile, Marker, Callout } from 'react-native-maps';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, onSnapshot } from 'firebase/firestore';
 import { db } from "../../firebaseConfig.js";
 
 const XYZMapPage = () => {
@@ -26,20 +26,18 @@ const XYZMapPage = () => {
   const [markers, setMarkers] = useState([]);
 
   useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const listingsSnapshot = await getDocs(collection(db, 'listings'));
-        const listingsData = listingsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-
-        const locationsSnapshot = await getDocs(collection(db, 'locations'));
+    const unsubscribeListings = onSnapshot(collection(db, 'listings'), (listingsSnapshot) => {
+      const listingsData = listingsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+  
+      const unsubscribeLocations = onSnapshot(collection(db, 'locations'), (locationsSnapshot) => {
         const locationsData = locationsSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
-
+  
         // Group listings by pickup location
         const groupedListings = listingsData.reduce((acc, listing) => {
           const location = locationsData.find(loc => loc.name === listing.pickup);
@@ -57,20 +55,22 @@ const XYZMapPage = () => {
           }
           return acc;
         }, {});
-
+  
         // Convert grouped listings to markers data
         const markersData = Object.keys(groupedListings).map(locationName => ({
           coordinate: groupedListings[locationName].coordinate,
           listings: groupedListings[locationName].listings
         }));
-
+  
         setMarkers(markersData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchListings();
+      });
+  
+      // Clean up the locations listener
+      return () => unsubscribeLocations();
+    });
+  
+    // Clean up the listings listener
+    return () => unsubscribeListings();
   }, []);
 
   // Update region while scrolling to enforce boundaries
