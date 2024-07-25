@@ -7,7 +7,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Explore from './explore.js';
 import Index from './index.js';
 import { Profiles } from './profile.js';
-import OneMap from './OneMap.js';
+import { MapScreen } from './OneMap.js';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,10 +32,10 @@ export default function TabLayout() {
           }}
         />
         <Tab.Screen
-          name="OneMap"
-          component={OneMap}
+          name="mapScreen"
+          component={MapScreen}
           options={{
-            title: 'OneMap',
+            title: 'mapscreen',
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name={focused ? 'map' : 'map-outline'} color={color} />
             ),

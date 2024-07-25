@@ -12,7 +12,6 @@ import { collection, getDocs, onSnapshot, query, where, addDoc, doc, serverTimes
 import { auth, db } from "../../firebaseConfig.js";
 import { GiftedChat } from 'react-native-gifted-chat';
 import { TouchableHighlight } from 'react-native-gesture-handler';
-import { set } from 'firebase/database';
 
 const Stack = createStackNavigator();
 
@@ -193,6 +192,17 @@ const Body = () => {
             hideSelect={true}
             colors={{ primary: "#9575CD" }}
             ref={(component) => { this.sectionedMultiSelect = component }}
+            styles={{
+              modalWrapper: {
+                paddingTop: '40%',
+              },
+              container: {
+                maxHeight: 400,
+                width: '80%',
+                alignSelf: 'center', 
+                justifyContent: 'center',
+              },
+            }}
           />
         </View>
         <TouchableOpacity onPress={() => navigation.navigate("ChatHistory")}>
@@ -200,7 +210,7 @@ const Body = () => {
         </TouchableOpacity>
       </View>
       <ScrollView>
-        <View style={{paddingLeft: 40, flexWrap: "wrap", flexDirection: "row", justifyContent: "flex-start"}}>
+        <View style={{marginLeft: '4%', flexWrap: "wrap", flexDirection: "row", justifyContent: "flex-start"}}>
           {
             listings.filter(
               listing => (listing.email !== currentUser.email && listing.name.toLowerCase().includes(search.toLowerCase()) && (selectedCategory.length === 0  || !listing.category || listing.category.map(category => selectedCategory.includes(category)).includes(true)))
@@ -282,32 +292,53 @@ const CardZoomIn = (props) => {
   };
 
   const handleDeletePress = async () => {
-    try {
-      // Step 1: Delete associated chatrooms
-      const chatroomsRef = collection(db, "chatrooms");
-      const q = query(chatroomsRef, where("listingId", "==", listings.id));
+    // Function to delete the listing and associated chatrooms
+    const deleteListingAndChatrooms = async () => {
+      try {
+        // Step 1: Delete associated chatrooms
+        const chatroomsRef = collection(db, "chatrooms");
+        const q = query(chatroomsRef, where("listingId", "==", listings.id));
   
-      const querySnapshot = await getDocs(q);
-      const deleteOperations = [];
+        const querySnapshot = await getDocs(q);
+        const deleteOperations = [];
   
-      querySnapshot.forEach((doc) => {
-        deleteOperations.push(deleteDoc(doc.ref));
-      });
+        querySnapshot.forEach((doc) => {
+          deleteOperations.push(deleteDoc(doc.ref));
+        });
   
-      // Step 2: Wait for all chatrooms to be deleted
-      await Promise.all(deleteOperations);
+        // Step 2: Wait for all chatrooms to be deleted
+        await Promise.all(deleteOperations);
   
-      // Step 3: Delete the listing itself
-      await deleteDoc(doc(db, "listings", listings.id));
+        // Step 3: Delete the listing itself
+        await deleteDoc(doc(db, "listings", listings.id));
   
-      // Success message and navigation
-      Alert.alert('Listing and associated chatrooms deleted successfully');
-      //navigation.navigate("Listing");
-      navigation.goBack();
-    } catch (error) {
-      console.error('Error deleting listing and chatrooms:', error);
-      Alert.alert('Error', 'Failed to delete listing and associated chatrooms');
-    }
+        // Success message and navigation
+        Alert.alert('Listing has been deleted successfully');
+        //navigation.navigate("Listing");
+        navigation.goBack();
+      } catch (error) {
+        console.error('Error deleting listing and chatrooms:', error);
+        Alert.alert('Error', 'Failed to delete listing and associated chatrooms');
+      }
+    };
+  
+    // Show confirmation dialog
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this listing and all associated chatrooms?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: deleteListingAndChatrooms,
+          style: 'destructive',
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   if (!currentUser) {
@@ -340,11 +371,11 @@ const CardZoomIn = (props) => {
         <View style={{paddingLeft: 16, flex: 3, paddingBottom: 20, paddingTop: 20}}>
           <Text style={{fontSize: 30, fontWeight: "bold"}}>{listings.name}</Text>
           <Text style={{paddingTop: 30, fontSize: 25, fontWeight: "bold"}}>Details</Text>
-          <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Expires in</Text>
+          <Text style={{paddingTop: 20, fontSize: 15, color: "#7D8283"}}>Expires in</Text>
           <Text style={{fontSize: 20}}>{listings.expiry}</Text>
-          <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Pick up location</Text>
+          <Text style={{paddingTop: 20, fontSize: 15, color: "#7D8283"}}>Pick up location</Text>
           <Text style={{fontSize: 20}}>{listings.pickup}</Text>
-          <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Categories</Text>
+          <Text style={{paddingTop: 20, fontSize: 15, color: "#7D8283"}}>Categories</Text>
           <View>
             {getSelectedNames().length > 0 ? (<Text style={{fontSize: 20}}>{getSelectedNames()}</Text>) : (<Text style={{fontSize: 20}}>No categories selected</Text>)}
           </View>
@@ -497,7 +528,7 @@ const Expiry = (props) => (
 );
 
 const Pickup = (props) => (
-  <Text style={styles.pickup}>Pick up at {props.pickup}</Text>
+  <Text style={styles.pickup} numberOfLines={1} ellipsizeMode='tail'>Pick up at {props.pickup}</Text>
 );
 
 const Card = (props) => (
@@ -594,21 +625,6 @@ const category_items = [{
 export default function HomeScreen() {
   const navigation = useNavigation();
   initalRouteName = "index";
-  /*useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in
-        const uid = user.uid;
-        // You can add navigation or other logic here if needed
-        navigation.navigate("(tabs)");
-      } else {
-        // User is signed out
-        navigation.navigate("SignIn");
-      }
-    });
-
-    return () => unsubscribe(); // Cleanup subscription on unmount
-  }, [auth]);*/
   
   return (
       <Stack.Navigator>

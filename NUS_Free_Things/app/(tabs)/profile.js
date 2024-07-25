@@ -29,16 +29,20 @@ const Body = () => {
     });
 
     // Fetch listings
-    const unsubscribeListings = onSnapshot(collection(db, 'listings'), querySnapshot => {
-      const listingsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setListings(listingsData);
-    }, error => {
-      console.error('Error fetching listings:', error);
-      Alert.alert('Error', 'Failed to fetch listings');
-    });
+    const unsubscribeListings = onSnapshot(
+      collection(db, 'listings'),
+      querySnapshot => {
+        const listingsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setListings(listingsData);
+      },
+      error => {
+        console.error('Error fetching listings:', error);
+        Alert.alert('Error', 'Failed to fetch listings');
+      }
+    );
 
     // Clean up subscriptions on unmount
     return () => {
@@ -50,36 +54,44 @@ const Body = () => {
   if (!currentUser) {
     return null; // or loading indicator while waiting for authentication
   }
-  
+
+  const userSpecificListings = listings.filter(listing => listing.email === currentUser.email);
+
   return (
     <ScrollView>
-      <View style={{paddingLeft: 10, flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
-        {          
-          listings.filter(
-              listing => listing.email === currentUser.email
-          ).map(listings => (
-              <TouchableOpacity key={listings.id}
-                  onPress={() => navigation.navigate("CardZoomIn",
-                  {
-                      listings,
-                  }
-              )}>
-              <View key={listings.id}>
+      <View style={{marginLeft: '4%', flexWrap: "wrap", flexDirection: "row", justifyContent: "flex-start"}}>
+        {userSpecificListings.length === 0 ? (
+          <Text style={{ fontSize: 16, color: 'grey' }}>You have not uploaded any listings...</Text>
+        ) : (
+          <View style={{ flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'flex-start' }}>
+            {userSpecificListings.map(listing => (
+              <TouchableOpacity
+                key={listing.id}
+                onPress={() =>
+                  navigation.navigate('CardZoomIn', {
+                    listings: listing,
+                  })
+                }
+              >
+                <View key={listing.id}>
                   <Card
-                  key={listings.id}
-                  name={listings.name}
-                  expiry={listings.expiry}
-                  pickup={listings.pickup}
-                  url={listings.imageUrl}
-                  />   
-              </View>
-          </TouchableOpacity>
-          ))
-        }
+                    key={listing.id}
+                    name={listing.name}
+                    expiry={listing.expiry}
+                    pickup={listing.pickup}
+                    url={listing.imageUrl}
+                  />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
     </ScrollView>
-  )
-}
+  );
+};
+
+export default Body;
 
 
 const Heading = () => {
@@ -120,13 +132,13 @@ const Heading = () => {
     <View style={{flex: 1}}>
         <View style={{flex: 2, backgroundColor: '#9575CD', paddingTop: 27}}>
         </View>
-        <View style={{position: "absolute", left: 20, top: 70, paddingTop: 10}}>
+        <View style={{position: "absolute", left: 20, top: 70, paddingTop: 7}}>
             <Image 
                 source={require('../../assets/images/react-logo.png')}
                 style={styles.avatar}
             />
             <View style={{paddingTop: 5}}>
-              <Text style={{fontSize: 18}}>Email: {currentUser.email}</Text>
+              <Text style={{fontSize: 18, color: 'grey'}}>Email: {currentUser.email}</Text>
             </View>
         </View>
         <View style={{flex: 3, borderBottomColor: "#B2B8BB", borderBottomWidth: 1.5, justifyContent: "flex-end"}}>
@@ -174,39 +186,6 @@ const Profiles = () => {
 }
 export { Profiles };
 
-/*const CardZoomIn = (props) => {
-    const navigation = useNavigation();
-    const { listings } = props.route.params;
-    return (
-      <ScrollView>
-        <TouchableOpacity onPress={() => navigation.navigate("Main")}>
-          <View style={{flex: 1, paddingTop: 35, paddingBottom: 10, paddingLeft: 16}}>
-            <TabBarIcon size={35} name={"arrow-back-outline"}/>
-          </View>
-        </TouchableOpacity>
-        <View style={{flex: 8}}>
-          <View style={{alignItems: "center", paddingTop: 5, flex: 4}}>
-            <Image
-              style={{width: 420, height: 450, borderRadius: 8}}
-              source={{ uri: listings.imageUrl }}
-            />
-          </View>
-          <View style={{paddingLeft: 16, flex: 3, paddingBottom: 20, paddingTop: 20}}>
-            <Text style={{fontSize: 30, fontWeight: "bold"}}>{listings.name}</Text>
-            <Text style={{paddingTop: 30, fontSize: 25, fontWeight: "bold"}}>Details</Text>
-            <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Expires in</Text>
-            <Text style={{fontSize: 20}}>{listings.expiry}</Text>
-            <Text style={{paddingTop: 5, fontSize: 15, color: "#7D8283"}}>Pick up location</Text>
-            <Text style={{fontSize: 20}}>{listings.pickup}</Text>
-            <Text style={{paddingTop: 30, fontSize: 25, fontWeight: "bold"}}>Description</Text>
-            <Text style={{paddingTop: 5, fontSize: 20}}>{listings.description}</Text>
-          </View>
-        </View>
-        <Button title="Delete" color="#F74046"/>
-      </ScrollView>
-    );
-};*/
-
 const PreviewImage = (props) => (
     <Image
       style={styles.preview}
@@ -223,7 +202,7 @@ const PreviewImage = (props) => (
   );
   
   const Pickup = (props) => (
-    <Text style={styles.pickup}>Pick up at {props.pickup}</Text>
+    <Text style={styles.pickup} numberOfLines={1} ellipsizeMode='tail'>Pick up at {props.pickup}</Text>
   );
   
   const Card = (props) => (

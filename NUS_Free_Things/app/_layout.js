@@ -8,7 +8,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import Tabs from "./(tabs)/_layout.js"
 import NotFound from "./+not-found.js"
 import SignIn from './SignIn.js';
-import SignUp from './SignUp.js';
+import SignUpScreen from './SignUp.js';
 import reset from './reset.js';
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -37,7 +37,7 @@ export default function RootLayout() {
       <Stack.Navigator initialRouteName='SignIn'>
         <Stack.Screen name="SignIn" component={SignIn} options={{ headerShown: false }} />
         <Stack.Screen name="reset" component={reset} options={{ headerShown: false }} />
-        <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
+        <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" component={Tabs} options={{ headerShown: false }} />
       </Stack.Navigator>
   );

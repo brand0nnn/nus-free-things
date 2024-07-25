@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Image, Text, ScrollView } from 'react-native';
-import MapView, { UrlTile, Marker, Callout } from 'react-native-maps';
-import { collection, getDocs, onSnapshot } from 'firebase/firestore';
+import { StyleSheet, View, Image, Text, ScrollView, Modal, TouchableOpacity } from 'react-native';
+import MapView, { UrlTile, Marker } from 'react-native-maps';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { db } from "../../firebaseConfig.js";
+import { CardZoomIn } from './index.js';
+import { createStackNavigator } from "@react-navigation/stack";
+
+const Stack = createStackNavigator();
 
 const XYZMapPage = () => {
+  const navigation = useNavigation(); // Get the navigation prop
   const xyzUrl = 'https://www.onemap.gov.sg/maps/tiles/Default_HD/{z}/{x}/{y}.png';
 
-  // Define the initial region and boundaries
   const initialRegion = {
     latitude: 1.29692,
     longitude: 103.77332,
@@ -15,15 +20,16 @@ const XYZMapPage = () => {
     longitudeDelta: 0.006,
   };
 
-  // Define boundaries for NUS including water area
   const minLat = 1.28974;
   const maxLat = 1.31342;
   const minLng = 103.76492;
   const maxLng = 103.79219;
-  
-  // State to manage the current region and markers
+
   const [region, setRegion] = useState(initialRegion);
   const [markers, setMarkers] = useState([]);
+  const [selectedListings, setSelectedListings] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [locationName, setLocationName] = useState('');
 
   useEffect(() => {
     const unsubscribeListings = onSnapshot(collection(db, 'listings'), (listingsSnapshot) => {
@@ -31,14 +37,13 @@ const XYZMapPage = () => {
         id: doc.id,
         ...doc.data()
       }));
-  
+
       const unsubscribeLocations = onSnapshot(collection(db, 'locations'), (locationsSnapshot) => {
         const locationsData = locationsSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
-  
-        // Group listings by pickup location
+
         const groupedListings = listingsData.reduce((acc, listing) => {
           const location = locationsData.find(loc => loc.name === listing.pickup);
           if (location) {
@@ -55,30 +60,26 @@ const XYZMapPage = () => {
           }
           return acc;
         }, {});
-  
-        // Convert grouped listings to markers data
+
         const markersData = Object.keys(groupedListings).map(locationName => ({
           coordinate: groupedListings[locationName].coordinate,
-          listings: groupedListings[locationName].listings
+          listings: groupedListings[locationName].listings,
+          locationname: locationName
         }));
-  
+
         setMarkers(markersData);
       });
-  
-      // Clean up the locations listener
+
       return () => unsubscribeLocations();
     });
-  
-    // Clean up the listings listener
+
     return () => unsubscribeListings();
   }, []);
 
-  // Update region while scrolling to enforce boundaries
   const onRegionChangeComplete = useCallback((newRegion) => {
     const { latitude, longitude, latitudeDelta, longitudeDelta } = newRegion;
     let updatedRegion = { latitude, longitude, latitudeDelta, longitudeDelta };
 
-    // Enforce boundaries
     if (latitude < minLat) {
       updatedRegion.latitude = minLat;
     } else if (latitude > maxLat) {
@@ -93,6 +94,17 @@ const XYZMapPage = () => {
     setRegion(updatedRegion);
   }, []);
 
+  const handleMarkerPress = (listings, location) => {
+    setSelectedListings(listings);
+    setLocationName(location); // Set location name
+    setModalVisible(true);
+  };
+
+  const handleListingPress = (listing) => {
+    setModalVisible(false);
+    navigation.navigate('CardZoomIn', { listings: listing }); // Pass the listing data to the CardZoomIn page
+  };
+
   return (
     <View style={styles.container}>
       <MapView
@@ -103,31 +115,48 @@ const XYZMapPage = () => {
       >
         <UrlTile
           urlTemplate={xyzUrl}
-          maximumZ={18} // Adjust according to your tile provider's maximum zoom level
-          zIndex={-1} // Ensure it's below other map layers
+          maximumZ={18}
+          zIndex={-1}
         />
-        {/* Render markers */}
         {markers.map((marker, index) => (
           <Marker
             key={index}
             coordinate={marker.coordinate}
-          >
-            <Callout>
-              <ScrollView style={styles.callout} contentContainerStyle={styles.calloutContent}>
-                {marker.listings.map((listing, idx) => (
-                  <View key={idx} style={styles.listingContainer}>
-                    <Text style={{paddingBottom: 20, paddingRight: 10}}><Image source={{ uri: listing.imageUrl }} style={styles.image} /></Text>
-                    <View style={styles.textContainer}>
-                      <Text style={styles.title}>{listing.name}</Text>
-                      <Text style={styles.ownerText}>{listing.email}</Text>
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
-            </Callout>
-          </Marker>
+            onPress={() => handleMarkerPress(marker.listings, marker.locationname)}
+          />
         ))}
       </MapView>
+
+      <Modal
+        visible={modalVisible}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.locationName}>Listings at {locationName}</Text>
+            <ScrollView style={styles.scrollView}>
+              {selectedListings.map((listing, idx) => (
+                <TouchableOpacity key={idx} style={styles.listingContainer} onPress={() => handleListingPress(listing)}>
+                  <Image source={{ uri: listing.imageUrl }} style={styles.image} />
+                  <View style={styles.textContainer}>
+                    <Text style={styles.title}>{listing.name}</Text>
+                    <Text style={styles.ownerText}>{listing.email}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <View style={styles.bottomImageContainer}>
         <Image
           source={{ uri: 'https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png' }}
@@ -151,6 +180,18 @@ const XYZMapPage = () => {
     </View>
   );
 };
+export default XYZMapPage;
+
+const MapScreen = () => {
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="XYZMapPage" component={XYZMapPage} options={{ headerShown: false }}/>
+      <Stack.Screen name="CardZoomIn" component={CardZoomIn} options={{ headerShown: false }}/>
+    </Stack.Navigator>
+  )
+}
+export { MapScreen };
 
 const styles = StyleSheet.create({
   container: {
@@ -161,12 +202,39 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
-  callout: {
-    width: 250,
-    maxHeight: 200, // Set a maximum height for the callout content
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  calloutContent: {
-    flexGrow: 1,
+  modalContent: {
+    width: '80%',
+    maxHeight: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  locationName: {
+    fontSize: 18,
+    //fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  closeButton: {
+    alignSelf: 'center',
+    paddingTop: 20,
+  },
+  closeButtonText: {
+    color: 'blue',
+  },
+  scrollView: {
+    marginTop: 10,
   },
   listingContainer: {
     flexDirection: 'row',
@@ -183,12 +251,11 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-    marginRight: 10,
+    marginLeft: 10,
   },
   title: {
     fontWeight: 'bold',
     fontSize: 18,
-    paddingTop: 3,
   },
   ownerText: {
     fontSize: 16,
@@ -211,5 +278,3 @@ const styles = StyleSheet.create({
     color: '#888',
   },
 });
-
-export default XYZMapPage;

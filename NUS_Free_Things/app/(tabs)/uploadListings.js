@@ -47,7 +47,7 @@ const UploadListings = () => {
 
   useEffect(() => {
     validateForm();
-  }, [name, expiry, selected, description, selectedItems]);
+  }, [name, expiry, selected, description, selectedItems, file]);
 
   const validateForm = () => {
     let errors = {};
@@ -69,6 +69,9 @@ const UploadListings = () => {
     }
     if (selectedItems.length == 0){
         errors.selectedItems = '*Category is required';
+    }
+    if (!file) {
+      errors.file = '*Image is required';
     }
 
     /*if (!file){
@@ -151,17 +154,23 @@ const UploadListings = () => {
   };
 
   const pickUpLocations = [
-    {title: "Tembusu", value: "Tembusu"},
-    {title: "RC4", value: "RC4"},
-    {title: "CAPT", value: "CAPT"},
-    {title: "RVRC", value: "RVRC"},
+    {title: "Tembusu College", value: "Tembusu College"},
+    {title: "Residential College 4", value: "Residential College 4"},
+    {title: "College of Alice and Peter Tan", value: "College of Alice and Peter Tan"},
+    {title: "Ridge View Residential College", value: "Ridge View Residential College"},
     {title: "Yale", value: "Yale"},
-    {title: "UTR", value: "UTR"},
-    {title: "PGP", value: "PGP"},
+    {title: "UTown Residences", value: "UTown Residences"},
+    {title: "Prince George's Park Residences", value: "rince George's Park Residences"},
     {title: "Raffles Hall", value: "Raffles Hall"},
+    {title: "Temasek Hall", value: "Temasek Hall"},
+    {title: "Eusoff Hall", value: "Eusoff Hall"},
+    {title: "Kent Ridge Hall", value: "Kent Ridge Hall"},
+    {title: "Sheares Hall", value: "Sheares Hall"},
+    {title: "King Edward VII Hall", value: "King Edward VII Hall"},
+    {title: "Helix House", value: "Helix House"},
+    {title: "Pioneer House", value: "Pioneer House"},
+    {title: "LightHouse", value: "LightHouse"},
   ];
-
-  
 
   return ( 
     <ScrollView>
@@ -224,16 +233,25 @@ const UploadListings = () => {
                 onChangeText={setExpiry}
               />
           </View>
-          <View style={{flexDirection:'row', alignSelf: "flex-start"}}>
-            <SelectList
-              data={pickUpLocations}
-              title="Pick Up Location"
-              setSelected={(val) => setSelected(val)} 
-              placeholder={<CustomPlaceholder />}
-              maxHeight={150}
-              dropdownStyles={{width: 370, borderColor: '#ccc'}}
-              boxStyles={{borderColor: '#ccc', width: 400, borderWidth: 0, borderBottomWidth: 1, paddingBottom: 8, marginBottom: 25, borderBottomColor:'#ccc'}}
-            />
+          <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+            <View style={{width: '113%'}}> 
+              <SelectList
+                data={pickUpLocations}
+                title="Pick Up Location"
+                setSelected={(val) => setSelected(val)} 
+                placeholder={<CustomPlaceholder />}
+                maxHeight={150}
+                dropdownStyles={{borderColor: '#ccc'}}
+                boxStyles={{
+                  borderColor: '#ccc', 
+                  borderWidth: 0, 
+                  borderBottomWidth: 1, 
+                  paddingBottom: 8, 
+                  marginBottom: 25, 
+                  borderBottomColor: '#ccc'
+                }}
+              />
+            </View>
           </View>
           <View style={{
               flexDirection:'row', 
@@ -265,6 +283,17 @@ const UploadListings = () => {
               searchPlaceholderText="Select categories"
               showChips={false}
               colors={{ primary: "#9575CD" }}
+              styles={{
+                modalWrapper: {
+                  paddingTop: '40%',
+                },
+                container: {
+                  maxHeight: 400,
+                  width: '80%',
+                  alignSelf: 'center', 
+                  justifyContent: 'center',
+                },
+              }}
             />
           </View>
         </View>
@@ -305,7 +334,7 @@ const CustomPlaceholder = () => {
 const SuccessfulPage = () => {
     return (
         <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-            <Text style={{fontSize: 30}}>Listing uploaded successfully!</Text>
+            <Text style={{fontSize: 30, color: '#8C52FF', fontWeight: 'bold'}}>Listing has been uploaded successfully!</Text>
         </View>
     )
 }
