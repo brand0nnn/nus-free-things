@@ -34,9 +34,9 @@ export default SignUpScreen = () => {
           await setDoc(doc(db, "users", user.uid), {
             email: user.email,
           });
-  
-          await sendEmailVerification(user);
           handleSignOut();
+          await sendEmailVerification(user);
+          //handleSignOut();
           Alert.alert(
             "Verification Email Sent",
             "A verification email has been sent to your email address. Please verify your email before logging in."

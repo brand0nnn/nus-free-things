@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Image, Text, ScrollView, Modal, TouchableOpacity } from 'react-native';
-import MapView, { UrlTile, Marker } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { db } from "../../firebaseConfig.js";
@@ -11,7 +11,6 @@ const Stack = createStackNavigator();
 
 const XYZMapPage = () => {
   const navigation = useNavigation(); // Get the navigation prop
-  const xyzUrl = 'https://www.onemap.gov.sg/maps/tiles/Default_HD/{z}/{x}/{y}.png';
 
   const initialRegion = {
     latitude: 1.29692,
@@ -113,11 +112,6 @@ const XYZMapPage = () => {
         region={region}
         onRegionChangeComplete={onRegionChangeComplete}
       >
-        <UrlTile
-          urlTemplate={xyzUrl}
-          maximumZ={18}
-          zIndex={-1}
-        />
         {markers.map((marker, index) => (
           <Marker
             key={index}
@@ -156,27 +150,6 @@ const XYZMapPage = () => {
           </View>
         </View>
       </Modal>
-
-      <View style={styles.bottomImageContainer}>
-        <Image
-          source={{ uri: 'https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png' }}
-          style={styles.bottomImage}
-        />
-        <Text style={styles.bottomText}>
-          <Text>OneMap</Text>
-          <Text>&nbsp;</Text>
-          <Text>&copy;</Text>
-          <Text>&nbsp;</Text>
-          <Text>contributors</Text>
-          <Text>&nbsp;&#124;&nbsp;</Text>
-          <Text
-            style={{ color: 'blue' }}
-            onPress={() => Linking.openURL('https://www.sla.gov.sg/')}
-          >
-            Singapore Land Authority
-          </Text>
-        </Text>
-      </View>
     </View>
   );
 };
@@ -260,21 +233,5 @@ const styles = StyleSheet.create({
   ownerText: {
     fontSize: 16,
     color: '#888888',
-  },
-  bottomImageContainer: {
-    position: 'absolute',
-    right: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  bottomImage: {
-    width: 20,
-    height: 20,
-    marginRight: 2,
-  },
-  bottomText: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    color: '#888',
   },
 });

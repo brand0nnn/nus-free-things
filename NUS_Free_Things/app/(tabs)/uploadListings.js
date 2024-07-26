@@ -160,7 +160,7 @@ const UploadListings = () => {
     {title: "Ridge View Residential College", value: "Ridge View Residential College"},
     {title: "Yale", value: "Yale"},
     {title: "UTown Residences", value: "UTown Residences"},
-    {title: "Prince George's Park Residences", value: "rince George's Park Residences"},
+    {title: "Prince George's Park Residences", value: "Prince George's Park Residences"},
     {title: "Raffles Hall", value: "Raffles Hall"},
     {title: "Temasek Hall", value: "Temasek Hall"},
     {title: "Eusoff Hall", value: "Eusoff Hall"},
