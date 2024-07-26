@@ -47,7 +47,6 @@ const ResetScreen = () => {
             style={{ width: 300, height: 110, marginBottom: 20}} 
           />
         </View>
-
         <View style={{paddingBottom: 10, alignSelf: 'flex-start'}}>
           <Text style={{fontSize: 24, marginBottom: 20, fontWeight: 'bold'}}>Reset your password</Text>
         </View>
@@ -68,7 +67,6 @@ const ResetScreen = () => {
             onChangeText={setEmail}
           />
         </View>
-
         <TouchableOpacity 
           onPress={handlePasswordReset}
           style={{
@@ -79,6 +77,11 @@ const ResetScreen = () => {
             width: 300,
           }}>
             <Text style={{textAlign:'center', fontWeight:'700', fontSize: 16, color: '#FFFFFF'}}>Reset Password</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
+          <View>
+            <Text style={{color:'#8C52FF', fontWeight:'700'}}>Go Back</Text>
+          </View>
         </TouchableOpacity>
       </View>
     </View>
