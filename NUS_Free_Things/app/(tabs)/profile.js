@@ -59,7 +59,7 @@ const Body = () => {
 
   return (
     <ScrollView>
-      <View style={{marginLeft: '4%', flexWrap: "wrap", flexDirection: "row", justifyContent: "flex-start"}}>
+      <View style={{marginLeft: '4%', flexWrap: "wrap", flexDirection: "row", justifyContent: "center"}}>
         {userSpecificListings.length === 0 ? (
           <Text style={{ fontSize: 16, color: 'grey' }}>You have not uploaded any listings...</Text>
         ) : (

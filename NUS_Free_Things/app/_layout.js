@@ -35,7 +35,7 @@ export default function RootLayout() {
 
   return (
       <Stack.Navigator initialRouteName='SignIn'>
-        <Stack.Screen name="SignIn" component={SignIn} options={{ headerShown: false }} />
+        <Stack.Screen name="SignIn" component={SignIn} options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="reset" component={reset} options={{ headerShown: false }} />
         <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" component={Tabs} options={{ headerShown: false }} />
