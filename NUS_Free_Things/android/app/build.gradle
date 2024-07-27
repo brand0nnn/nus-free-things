@@ -143,8 +143,8 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation('androidx.multidex:multidex:2.0.1')
-    implementation('com.mapbox.mapboxsdk:mapbox-android-sdk:9.1.0')
-    implementation('com.mapbox.mapboxsdk:mapbox-android-accounts:0.7.0')
+    //implementation('com.mapbox.mapboxsdk:mapbox-android-sdk:9.1.0')
+    //implementation('com.mapbox.mapboxsdk:mapbox-android-accounts:0.7.0')
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

@@ -40,13 +40,13 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
-        maven {
+        /*maven {
             url 'https://api.mapbox.com/downloads/v2/releases/maven'
             credentials {
                 username = 'mapbox'  
                 password = project.hasProperty('sk.eyJ1Ijoic2VhbnRlcnIiLCJhIjoiY2x5d2hwNXAwMHRpMzJrc2xjN2FibDVxMyJ9.IgdXeTbd26RZ_FozBGKqDA') ? project.property('sk.eyJ1Ijoic2VhbnRlcnIiLCJhIjoiY2x5d2hwNXAwMHRpMzJrc2xjN2FibDVxMyJ9.IgdXeTbd26RZ_FozBGKqDA') : ''
             }
             authentication { basic(BasicAuthentication) }
-        }
+        }*/
     }
 }
